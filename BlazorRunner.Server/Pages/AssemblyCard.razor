@@ -1,0 +1,51 @@
+﻿<div class="card d-inline-flex mx-2 my-2 align-content-center" style="width: 18rem;" @onmouseout=HideAll>
+    <div class="card-body" style="text-align: center;">
+        <div class="d-inline-block rounded-circle align-content-center shadow"
+             style="        background-color: @AcronymBackgroundColor;
+        width: 100px;
+        height: 100px;
+        text-align: center;
+        color: @AcronymColor;
+        text-shadow: 1px 1px rgb(66 66 66);
+        font-size: 4em;">
+            <div @onmouseover=ShowBubbleText @onmouseout=HideBubbleText style="cursor: pointer;">
+                @((MarkupString)BubbleText)
+            </div>
+        </div>
+        <div class="d-inline-block my-2">
+            <ul class="list-group list-group-horizontal">
+                <li class="list-group-item" @onmouseover=ShowRunAllButton @onmouseout=HideRunAllButton>
+                    @if (ShowRunAll)
+                    {
+
+                        <button class="btn btn-outline-success" title="Run All Scripts in @Name">
+                            <div>
+                                Run All
+                            </div>
+                            <span class="oi oi-play-circle" style="font-size: 1.5em;"></span>
+                        </button>
+                    }
+                    else
+                    {
+                        <div class="text-secondary">
+                            Scripts
+                        </div>
+                        <span class="badge bg-primary">12</span>
+                    }
+                </li>
+                <li class="list-group-item">
+                    <div class="text-secondary">
+                        Settings
+                    </div>
+                    <span class="badge bg-primary">12</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="card-footer" style="text-align: center;">
+        <span class="text-monospace" style="font-weight: bold;">@Name</span>
+        <div>
+            <span class="text-muted">@Description</span>
+        </div>
+    </div>
+</div>

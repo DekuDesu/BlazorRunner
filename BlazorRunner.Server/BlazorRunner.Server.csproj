@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>2c381bfd-d14c-4452-be63-9d38eaa899be</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BlazorRunner\BlazorRunner.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Pages\BytePicker - Copy - Copy.razor.cs">
+      <DependentUpon>BytePicker - Copy.razor.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Pages\BytePicker - Copy.razor.cs">
+      <DependentUpon>BytePicker.razor.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>

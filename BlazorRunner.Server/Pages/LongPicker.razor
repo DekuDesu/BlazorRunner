@@ -1,0 +1,19 @@
+﻿<div class="btn-toolbar mb-3" role="toolbar" aria-label="Toolbar with button groups">
+    <div class="input-group">
+        <div class="input-group-text font-weight-bold" id="btnGroupAddon">long</div>
+        <input type="text" class="form-control" placeholder="long (-2⁶³ — 2⁶³)" aria-label="long (-2⁶³ — 2⁶³)" aria-describedby="btnGroupAddon" @bind-value=InputText style="min-width: 100px;">
+        <button class="btn btn-outline-primary" @onclick="()=> { SelectedInt++; }">
+            <span class="text-monospace">+</span>
+        </button>
+        <button class="btn btn-outline-primary" @onclick="()=> { SelectedInt--; }">
+            <span class="text-monospace">-</span>
+        </button>
+        <button class="btn btn-outline-primary" @onclick="()=> { SelectedInt >>= 1; }">
+            <span class="text-monospace">@($"<<")</span>
+        </button>
+        <button class="btn btn-outline-primary" @onclick="()=> { SelectedInt <<= 1; }">
+            <span class="text-monospace">@($">>")</span>
+        </button>
+    </div>
+
+</div>

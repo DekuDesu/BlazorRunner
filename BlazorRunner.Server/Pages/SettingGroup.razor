@@ -1,0 +1,31 @@
+﻿<ul class="list-group">
+    <li class="list-group-item list-group-item-secondary h5" style="text-align:center;">
+        @Name
+    </li>
+    @for (int i = 0; i < (Settings?.Length ?? 0); i++)
+    {
+        int index = i;
+        <SettingControl Setting=Settings[index]></SettingControl>
+    }
+    <li class="list-group-item list-group-item" style="text-align: center;">
+        <h5>Slider Control</h5>
+        <div class="text-muted">This is a description of this control explaining what it does and why and it should be long to amplify what it might look like when people put really long descriptions with no persiods for wahteevr reasons</div>
+        <div>
+            <label for="customRange3" class="form-label">Example range</label>
+            <input type="range" class="form-range" min="0" max="5" step="0.5" id="customRange3">
+        </div>
+        <SBytePicker></SBytePicker>
+        <BytePicker></BytePicker>
+        <ShortPicker></ShortPicker>
+        <UShortPicker></UShortPicker>
+        <IntPicker></IntPicker>
+        <UIntPicker></UIntPicker>
+        <LongPicker></LongPicker>
+        <ULongPicker></ULongPicker>
+        <StringPicker></StringPicker>
+        <GuidPicker></GuidPicker>
+        <DoublePicker></DoublePicker>
+        <FloatPicker></FloatPicker>
+        <DecimalPicker></DecimalPicker>
+    </li>
+</ul>

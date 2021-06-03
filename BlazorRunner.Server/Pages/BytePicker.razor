@@ -1,0 +1,55 @@
+﻿<div class="btn-toolbar mb-3" role="toolbar" aria-label="Toolbar with button groups">
+    <div class="input-group">
+        <div class="input-group-text font-weight-bold" id="btnGroupAddon">byte</div>
+        <input type="text" class="form-control" placeholder="Byte (0 — 255)" aria-label="Byte (0 — 255)" aria-describedby="btnGroupAddon" @bind-value=InputText style="min-width: 100px;">
+        <button class="btn btn-outline-primary" @onclick="()=> { SelectedByte++; }">
+            <span class="text-monospace">+</span>
+        </button>
+        <button class="btn btn-outline-primary" @onclick="()=> { SelectedByte--; }">
+            <span class="text-monospace">-</span>
+        </button>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                Select
+            </button>
+            <ul class="dropdown-menu px-3" aria-labelledby="dropdownMenuButton1" style="max-height: 400px; overflow-y:auto; max-width: auto; overflow-x: hidden;">
+                @for (int i = 0; i < 255;)
+                {
+                    // capture i in tmp variables explcitly
+                    int tmp1 = i++;
+                    int tmp2 = i++;
+                    int tmp3 = i++;
+                    int tmp4 = i++;
+
+                    <li>
+                        <div class="dropdown-item">
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                                <button type="button" class="btn btn-outline-primary" @onclick="()=> { SelectedByte = (byte)tmp1; }">
+                                    <span class="text-monospace">
+                                        @($"{tmp1}".PadLeft(3,'0'))
+                                    </span>
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" @onclick="()=> { SelectedByte = (byte)tmp2; }">
+                                    <span class="text-monospace">
+                                        @($"{tmp2}".PadLeft(3, '0'))
+                                    </span>
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" @onclick="()=> { SelectedByte = (byte)tmp3; }">
+                                    <span class="text-monospace">
+                                        @($"{tmp3}".PadLeft(3, '0'))
+                                    </span>
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" @onclick="()=> { SelectedByte = (byte)tmp4; }">
+                                    <span class="text-monospace">
+                                        @($"{tmp4}".PadLeft(3, '0'))
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+</div>
