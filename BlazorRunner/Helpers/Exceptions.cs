@@ -45,5 +45,11 @@ namespace BlazorRunner.Runner.Helpers
         {
             return new NotSupportedException($"Failed to create a script from the entry point {info.Name}. The entry point must comply with standard entry point signatures see: https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/program-structure/main-command-line");
         }
+
+        [DebuggerHidden]
+        public static Exception IncompatibleTypeUsedWithRange(Type Expected, Type Actual)
+        {
+            return new InvalidOperationException($"Failed to cast {Actual.Name} to the expected type of {Expected.Name}. When using the [Range(Min, Max, Step)] attribute, ensure that the types of Min, Max and Step are of the same type, or converitble to the [Setting] type.");
+        }
     }
 }

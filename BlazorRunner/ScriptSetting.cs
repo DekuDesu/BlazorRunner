@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BlazorRunner.Runner
 {
-    public class ScriptSetting : RegisteredObject, IScriptSetting
+    public class ScriptSetting : RegisteredObject, IScriptSetting, ISlider
     {
         public string Name { get; set; }
 
@@ -31,6 +31,14 @@ namespace BlazorRunner.Runner
 
         public string Group { get; set; }
 
+        public bool SliderCompatible { get; set; }
+
+        public object Max { get; set; }
+
+        public object Min { get; set; }
+
+        public object StepSize { get; set; }
+
         private void SetValue(object value)
         {
             BackingProperty?.SetValue(BackingInstance, value);
@@ -45,6 +53,15 @@ namespace BlazorRunner.Runner
         public override string ToString()
         {
             return $"{Name ?? Id.ToString()} ({(BackingField is null ? "Property" : "Field")})";
+        }
+
+        public (MemberInfo Member, object Instance) GetBackingInformation()
+        {
+            if (IsProperty)
+            {
+                return (BackingProperty, BackingInstance);
+            }
+            return (BackingField, BackingInstance);
         }
     }
 }

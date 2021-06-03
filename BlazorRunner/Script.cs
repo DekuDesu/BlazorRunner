@@ -12,7 +12,7 @@ namespace BlazorRunner.Runner
 
         public string Description { get; set; }
 
-        public object BackingInstance { get; set; }
+        public object BackingInstance { get; init; }
 
         public IInvokableMember Setup { get; set; }
 
@@ -29,6 +29,7 @@ namespace BlazorRunner.Runner
         public IDictionary<string, IInvokableMember[]> ScriptGroups { get; set; }
 
         public IDisposable ManagedResource { get; set; }
+
 
         public object Invoke()
         {

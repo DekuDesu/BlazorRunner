@@ -14,9 +14,9 @@ namespace BlazorRunner.Runner
             return new ScriptAssembly();
         }
 
-        public static IScript CreateScript()
+        public static IScript CreateScript(object BackingInstance)
         {
-            return new Script();
+            return new Script() { BackingInstance = BackingInstance };
         }
 
         public static IInvokableMember CreateInvokableMember(MethodInfo method, object BackingInstance)

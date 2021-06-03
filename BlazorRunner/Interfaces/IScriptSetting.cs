@@ -2,31 +2,8 @@
 
 namespace BlazorRunner.Runner
 {
-    public interface IScriptSetting : IGrouped, IBasicInfo
+    public interface IScriptSetting : IGrouped, IBasicInfo, IInstanced
     {
-        /// <summary>
-        /// The actual instance of the object that contains the setting. 
-        /// <para>
-        /// For example if you had the following script, BackingInstance would be an instance of Test
-        /// <code>
-        /// [Script]
-        /// </code>
-        /// <code>
-        /// class Test {
-        /// </code>
-        /// <code>
-        ///     [Setting]
-        ///     </code>
-        /// <code>
-        ///     string Text = "test";
-        ///     </code>
-        /// <code>
-        /// }
-        /// </code>
-        /// </para>
-        /// </summary>
-        object BackingInstance { get; init; }
-
         /// <summary>
         /// The value of this setting
         /// </summary>
@@ -51,5 +28,11 @@ namespace BlazorRunner.Runner
         /// Whether or not this setting is for a property
         /// </summary>
         bool IsProperty { get; }
+
+        /// <summary>
+        /// Gets the appropriate field or property information for this object along with it's backing instance
+        /// </summary>
+        /// <returns></returns>
+        (MemberInfo Member, object Instance) GetBackingInformation();
     }
 }

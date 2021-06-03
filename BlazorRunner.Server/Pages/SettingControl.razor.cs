@@ -11,5 +11,11 @@ namespace BlazorRunner.Server.Pages
     {
         [Parameter]
         public IScriptSetting Setting { get; set; }
+
+        public void UpdateValue(object value)
+        {
+            Setting.Value = value;
+        }
+        public object GetValue() => Setting.Value;
     }
 }

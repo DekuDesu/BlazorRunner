@@ -13,13 +13,13 @@ namespace BlazorRunner.Runner
 
         public string Description { get; set; }
 
-        public object BackingInstance { get; init; }
-
         public MethodInfo BackingMethod { get; init; }
 
         public string Group { get; set; }
 
         public object[] DefaultParameters { get; set; } = null;
+
+        public object BackingInstance { get; init; }
 
         public object Invoke()
         {

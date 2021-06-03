@@ -21,13 +21,10 @@ namespace BlazorRunner.Runner
             foreach (var item in scripts)
             {
                 // create a new script object
-                IScript newScript = Factory.CreateScript();
+                IScript newScript = Factory.CreateScript(CreateScriptInstance(item));
 
                 // attach the flavor text like the name and description
                 AssignFlavorText(newScript, item);
-
-                // attempt to verify that the script has a public parameterless constructor then create an instance of the script
-                newScript.BackingInstance = CreateScriptInstance(item);
 
                 // get the setup method
                 AssignInvokableMember<SetupAttribute>(newScript, item, (script, obj) => script.Setup = obj);
@@ -79,7 +76,7 @@ namespace BlazorRunner.Runner
             if (entryPoint != null)
             {
                 // create a new script
-                var newScript = Factory.CreateScript();
+                var newScript = Factory.CreateScript(null);
 
                 newScript.Name = assembly.FullName;
 
@@ -129,6 +126,87 @@ namespace BlazorRunner.Runner
             return null;
         }
 
+        private void AssignSliderProperties(IScriptSetting instancedSetting)
+        {
+
+            // get the information about the setting
+            var (MemberInfo, _) = instancedSetting.GetBackingInformation();
+
+            var RangeAttribute = MemberInfo.GetCustomAttribute<RangeAttribute>();
+
+            if (RangeAttribute is null)
+            {
+                return;
+            }
+
+            object Instance = instancedSetting.Value;
+
+            // there is a possibility they are null make sure they are not
+            if (Instance != null && MemberInfo != null)
+            {
+                // make sure the type of instance is an eligible slider type(aka a primitive)
+                if (TypeValidator.TryGetEligibleType(Instance, out Type EligibleType, ValidatorTypes.EligibleSliders))
+                {
+                    // verify that the limits that were provided in the attribute are the same type or at least converitble to
+                    // the original type of the object since it will need to be constantly compared to the object
+                    if (TypeValidator.TryGetCompatibility(RangeAttribute.Min, EligibleType, out var compatibility))
+                    {
+                        if (compatibility != CastingCompatibility.Implicit)
+                        {
+                            RangeAttribute.Min = TypeValidator.Cast(RangeAttribute.Min, EligibleType, compatibility);
+                        }
+                    }
+                    else
+                    {
+                        throw Helpers.Exceptions.IncompatibleTypeUsedWithRange(RangeAttribute.Min.GetType(), EligibleType);
+                    }
+
+                    if (TypeValidator.TryGetCompatibility(RangeAttribute.Max, EligibleType, out compatibility))
+                    {
+                        if (compatibility != CastingCompatibility.Implicit)
+                        {
+                            RangeAttribute.Max = TypeValidator.Cast(RangeAttribute.Max, EligibleType, compatibility);
+                        }
+                    }
+                    else
+                    {
+                        throw Helpers.Exceptions.IncompatibleTypeUsedWithRange(RangeAttribute.Min.GetType(), EligibleType);
+                    }
+
+                    if (TypeValidator.TryGetCompatibility(RangeAttribute.StepAmount, EligibleType, out compatibility))
+                    {
+                        if (compatibility != CastingCompatibility.Implicit)
+                        {
+                            RangeAttribute.StepAmount = TypeValidator.Cast(RangeAttribute.StepAmount, EligibleType, compatibility);
+                        }
+                    }
+                    else
+                    {
+                        RangeAttribute.StepAmount = GetDefaultSliderValue(EligibleType);
+                    }
+
+                    if (instancedSetting is ISlider slider)
+                    {
+                        slider.Min = RangeAttribute.Min;
+                        slider.Max = RangeAttribute.Max;
+                        slider.StepSize = RangeAttribute.StepAmount;
+                        slider.SliderCompatible = true;
+                    }
+                }
+            }
+        }
+
+        private object GetDefaultSliderValue(Type DesiredType)
+        {
+            object defaultVal = TypeValidator.DefaultNonZeroPrimitives.Where(x => x.GetType() == DesiredType).FirstOrDefault();
+            if (defaultVal != null)
+            {
+                return defaultVal;
+            }
+
+            return 1;
+        }
+
         private (IScriptSetting[], IDictionary<string, IScriptSetting[]>) GetScriptSettings(Type scriptType, object BackingInstance)
         {
             // we dont mind if they don't explictly chose a field or property, if it has a setting attribute select it
@@ -160,6 +238,8 @@ namespace BlazorRunner.Runner
 
                 Helpers.Dictionary.Append(groupDict, group, setting);
 
+                AssignSliderProperties(setting);
+
                 settings.Add(setting);
             }
 
@@ -172,6 +252,8 @@ namespace BlazorRunner.Runner
                 string group = AssignGroup(setting, item) ?? "Other";
 
                 Helpers.Dictionary.Append(groupDict, group, setting);
+
+                AssignSliderProperties(setting);
 
                 settings.Add(setting);
             }

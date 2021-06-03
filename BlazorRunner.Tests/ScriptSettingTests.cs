@@ -58,10 +58,5 @@ namespace BlazorRunner.Tests
 
             Assert.True(setting.IsProperty);
         }
-
-        public int TestMethod()
-        {
-            return 1;
-        }
     }
 }

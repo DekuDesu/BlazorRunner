@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 namespace BlazorRunner.Runner
 {
-    public interface IScript : IBasicInfo, IDisposable
+    public interface IScript : IBasicInfo, IDisposable, IInstanced
     {
-        object BackingInstance { get; set; }
-
         IInvokableMember Cleanup { get; set; }
 
         IInvokableMember EntryPoint { get; set; }

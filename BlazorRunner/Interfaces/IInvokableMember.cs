@@ -3,11 +3,9 @@ using System.Reflection;
 
 namespace BlazorRunner.Runner
 {
-    public interface IInvokableMember : IBasicInfo, IGrouped
+    public interface IInvokableMember : IBasicInfo, IGrouped, IInstanced
     {
         MethodInfo BackingMethod { get; }
-
-        object BackingInstance { get; init; }
 
         object[] DefaultParameters { get; set; }
 

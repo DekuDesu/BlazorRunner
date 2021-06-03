@@ -185,6 +185,23 @@ namespace BlazorRunner.Tests
 
             Assert.Equal(44, parsedAssembly[0].Invoke());
         }
+
+        [Fact]
+        public void RangeSetsForSettings()
+        {
+            // load an assembly
+            Assembly testAssembly = typeof(AssemblyParserTest.MyExampleScript).Assembly;
+
+            IScriptAssembly parsedAssembly = Parser.Parse(testAssembly);
+
+            IScript script = parsedAssembly[0];
+
+            var slider = script.Settings.Where(x => x.Name == "DummyValue").First() as ISlider;
+
+            Assert.Equal(0, slider.Min);
+            Assert.Equal(100d, slider.Max);
+            Assert.Equal(0.1d, slider.StepSize);
+        }
     }
 }
 
@@ -201,6 +218,7 @@ namespace AssemblyParserTest
         public int N { get; set; }
 
         [Setting(Group = "Number Settings")]
+        [Range(Min = -0, Max = "100d", StepAmount = 0.1d)]
         public double DummyValue = 0.0f;
 
         public double NotCounted { get; set; } = 2.3f;
