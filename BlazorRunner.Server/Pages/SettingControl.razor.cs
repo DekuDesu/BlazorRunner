@@ -16,6 +16,7 @@ namespace BlazorRunner.Server.Pages
         {
             Setting.Value = value;
         }
+
         public object GetValue() => Setting.Value;
     }
 }

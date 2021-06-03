@@ -1,5 +1,19 @@
 ﻿@page "/"
 
+@inject IAssemblyBuilder builder
+
 <div class="flex">
-    <ScriptCard></ScriptCard>
+    @for (int i = 0; i < (ImportedTestAssembly?.Length ?? 0); i++)
+    {
+        <ScriptCard Script=@ImportedTestAssembly[i]></ScriptCard>
+    }
 </div>
+
+@code{
+    IScriptAssembly ImportedTestAssembly = null;
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        ImportedTestAssembly = builder.Parse(typeof(ServerTestAssembly.MyExampleScript).Assembly);
+    }
+}

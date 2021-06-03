@@ -1,0 +1,38 @@
+﻿
+@typeparam T
+
+<div class="btn-toolbar mb-3 w-100" role="toolbar" aria-label="Toolbar with button groups">
+    <div class="input-group w-100">
+        <div class="input-group-text font-weight-bold" id="btnGroupAddon">@SliderTypeName</div>
+        <input type="text" class="form-control" placeholder=@($"{SliderTypeName} ({Min} — {Max})") aria-label=@($"{SliderTypeName} ({Min} — {Max})") aria-describedby="btnGroupAddon" @bind-value=InputText style="min-width: 100px;">
+        @if (EnableBitShift)
+        {
+            <button class="btn btn-outline-primary text-monospace" @onclick=BitShiftRight>
+                @($">>")
+            </button>
+        }
+        @if (EnableIncrement)
+        {
+            <button class="btn btn-outline-primary text-monospace" @onclick=Decrement>
+                -
+            </button>
+            <button class="btn btn-outline-primary text-monospace" @onclick=Increment>
+                +
+            </button>
+        }
+        @if (EnableBitShift)
+        {
+            <button class="btn btn-outline-primary text-monospace" @onclick=BitShiftLeft>
+                @($"<<")
+            </button>
+        }
+        @if (EnableSlider)
+        {
+            <input type="range" class="form-range" min=@Min max=@Max step=@StepAmount id="customRange3" @bind-value=Value>
+            <div class="d-flex flex-row justify-content-between w-100">
+                <div class="d-flex">@Min</div>
+                <div class="d-flex">@Max</div>
+            </div>
+        }
+    </div>
+</div>

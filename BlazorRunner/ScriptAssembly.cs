@@ -15,11 +15,11 @@ namespace BlazorRunner.Runner
 
         public string Description { get; set; }
 
-        public IDictionary<Guid, IScript> ScriptDictionary { get; set; } = new Dictionary<Guid, IScript>();
+        public IScript[] Scripts => _Scripts;
 
-        public IDictionary<Guid, IInvokableMember> InvokableDictionary { get; set; } = new Dictionary<Guid, IInvokableMember>();
+        public IInvokableMember[] InvokableMembers => _InvokableMembers;
 
-        public IDictionary<Guid, IScriptSetting> SettingDictionary { get; set; } = new Dictionary<Guid, IScriptSetting>();
+        public IScriptSetting[] Settings => _Settings;
 
         public ref IScript this[int index] => ref _Scripts[index];
 
@@ -27,15 +27,17 @@ namespace BlazorRunner.Runner
 
         public object this[string Key] => GetUnknownObjectByKey(new Guid(Key));
 
-        public IScript[] Scripts => _Scripts;
+        public int Length => Scripts.Length;
+
+        public IDictionary<Guid, IScript> ScriptDictionary { get; set; } = new Dictionary<Guid, IScript>();
+
+        public IDictionary<Guid, IInvokableMember> InvokableDictionary { get; set; } = new Dictionary<Guid, IInvokableMember>();
+
+        public IDictionary<Guid, IScriptSetting> SettingDictionary { get; set; } = new Dictionary<Guid, IScriptSetting>();
 
         private IScript[] _Scripts = Array.Empty<IScript>();
 
-        public IInvokableMember[] InvokableMembers => _InvokableMembers;
-
         private IInvokableMember[] _InvokableMembers = Array.Empty<IInvokableMember>();
-
-        public IScriptSetting[] Settings => _Settings;
 
         private IScriptSetting[] _Settings = Array.Empty<IScriptSetting>();
 
@@ -46,10 +48,12 @@ namespace BlazorRunner.Runner
             {
                 return ScriptDictionary[Key];
             }
+
             if (InvokableDictionary.ContainsKey(Key))
             {
                 return InvokableDictionary[Key];
             }
+
             if (SettingDictionary.ContainsKey(Key))
             {
                 return SettingDictionary[Key];

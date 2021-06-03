@@ -7,7 +7,10 @@
         <span class="text-muted">This is a description of the script, it is very verbose so we can see how it wraps if it does</span>
     </li>
     <li class="list-group-item">
-        <SettingGroup Name="Other"></SettingGroup>
+        @for (int i = 0; i < (Script?.SettingGroups?.Count ?? 0); i++)
+        {
+            <SettingGroup Name=@Script.SettingGroups.ElementAt(i).Key Settings=@Script.SettingGroups.ElementAt(i).Value></SettingGroup>
+        }
     </li>
     <li class="list-group-item list-group-item-secondary ">
         <button class="btn btn-outline-success" title="Run Script">

@@ -1,9 +1,0 @@
-﻿
-<div class="btn-toolbar mb-3" role="toolbar" aria-label="Toolbar with button groups">
-
-    <div class="input-group">
-        <div class="input-group-text font-weight-bold" id="btnGroupAddon">double</div>
-        <input type="text" class="form-control" placeholder=@($"double ({Min} — {Max})") aria-label=@($"double ({Min} — {Max})") aria-describedby="btnGroupAddon" @bind-value=InputText style="min-width: 100px;">
-        <input type="range" class="form-range" min=@Min max=@Max step=@StepAmount id="customRange3" @bind-value=Value>
-    </div>
-</div>

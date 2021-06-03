@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using BlazorRunner.Runner;
+
 namespace BlazorRunner.Server
 {
     public class Startup
@@ -29,6 +31,7 @@ namespace BlazorRunner.Server
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
+            services.AddSingleton<IAssemblyBuilder, AssemblyBuilder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
