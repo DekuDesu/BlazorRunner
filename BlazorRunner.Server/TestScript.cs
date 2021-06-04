@@ -22,6 +22,13 @@ namespace ServerTestAssembly
         [Description("The message that should be displayed instead of hello world")]
         public string Text = "Hello World";
 
+        [Setting]
+        [Range(Min = "4", Max = byte.MaxValue, StepAmount = 2)]
+        public byte LimitedByte = 14;
+
+        [Setting(Group = "Number Settings")]
+        public char CustomChar = '\u006A';
+
         [Setup]
         public void Before()
         {

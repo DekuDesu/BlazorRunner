@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.CSharp.RuntimeBinder;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace BlazorRunner.Server.Pages
     public partial class PrimitiveSlider<T> : ComponentBase where T : struct, IConvertible, IComparable<T>
     {
         [Parameter]
-        public Action<T> OnChange { get; set; }
+        public Action<object> OnChange { get; set; }
 
         [Parameter]
         public bool EnableSlider { get; set; } = true;
@@ -21,13 +22,22 @@ namespace BlazorRunner.Server.Pages
         public bool EnableIncrement { get; set; } = true;
 
         [Parameter]
-        public T Min { get; set; } = default;
+        public bool EnableSliderConstraints { get; set; } = true;
 
         [Parameter]
-        public T Max { get; set; } = default;
+        public object Min { get; set; } = default;
 
         [Parameter]
-        public T StepAmount { get; set; } = default;
+        public object Max { get; set; } = default;
+
+        [Parameter]
+        public object StepAmount { get; set; } = default;
+
+        [Parameter]
+        public int LimitTextInputLength { get; set; } = -1;
+
+        [Parameter]
+        public Type SliderTextTypeOverride { get; set; } = null;
 
         [Parameter]
         public T Value
@@ -35,13 +45,16 @@ namespace BlazorRunner.Server.Pages
             get => _Value;
             set
             {
-                if (value.CompareTo(Min) < 0)
+                if (EnableSliderConstraints)
                 {
-                    value = Min;
-                }
-                else if (value.CompareTo(Max) > 0)
-                {
-                    value = Max;
+                    if (value.CompareTo((dynamic)Min) < 0)
+                    {
+                        value = (dynamic)Min;
+                    }
+                    else if (value.CompareTo((dynamic)Max) > 0)
+                    {
+                        value = (dynamic)Max;
+                    }
                 }
 
                 _Value = value;
@@ -49,8 +62,6 @@ namespace BlazorRunner.Server.Pages
                 OnChange?.Invoke(value);
 
                 _InputText = value.ToString();
-
-                StateHasChanged();
             }
         }
 
@@ -61,6 +72,13 @@ namespace BlazorRunner.Server.Pages
             get => _InputText;
             set
             {
+                if (LimitTextInputLength > -1)
+                {
+                    if (value.Length > LimitTextInputLength)
+                    {
+                        value = value[0..LimitTextInputLength];
+                    }
+                }
                 if (BlazorRunner.Runner.TypeValidator.TryGetCompatibility(value, typeof(T), out var compatibility))
                 {
                     Value = (T)Runner.TypeValidator.Cast(value, typeof(T), compatibility);
@@ -71,6 +89,32 @@ namespace BlazorRunner.Server.Pages
         private string _InputText = "";
 
         private string SliderTypeName = "";
+
+        public string SliderValue
+        {
+            get => _SliderValue;
+            set
+            {
+                if (SliderTextTypeOverride != null)
+                {
+                    if (BlazorRunner.Runner.TypeValidator.TryGetCompatibility(value, SliderTextTypeOverride, out var compatibility))
+                    {
+                        var tmp = Runner.TypeValidator.Cast(value, SliderTextTypeOverride, compatibility);
+                        if (BlazorRunner.Runner.TypeValidator.TryGetCompatibility(tmp, typeof(T), out compatibility))
+                        {
+                            DynamicValue = (T)Runner.TypeValidator.Cast(tmp, typeof(T), compatibility);
+                            _SliderValue = value;
+                        }
+                    }
+                }
+                else if (BlazorRunner.Runner.TypeValidator.TryGetCompatibility(value, typeof(T), out var compatibility))
+                {
+                    DynamicValue = (T)Runner.TypeValidator.Cast(value, typeof(T), compatibility);
+                    _SliderValue = value;
+                }
+            }
+        }
+        public string _SliderValue = default(T).ToString();
 
         public dynamic DynamicValue
         {
@@ -108,20 +152,55 @@ namespace BlazorRunner.Server.Pages
 
         public void BitShiftLeft()
         {
-            try
-            {
-                DynamicValue <<= 1;
-            }
-            catch (Exception) { }
-        }
-
-        public void BitShiftRight()
-        {
+            // this is a war crime i'm sure of it
+            // this monstrocity was the only way i could make all types without knowing their types with this stupid component
             try
             {
                 DynamicValue >>= 1;
             }
-            catch (Exception) { }
+            catch (RuntimeBinderException e)
+            {
+                // forgive me
+                if (e.Message.StartsWith("Cannot implicitly convert type 'int' to"))
+                {
+                    try
+                    {
+                        int shiftedVal = ((int)DynamicValue) << 1;
+
+                        if (BlazorRunner.Runner.TypeValidator.TryGetCompatibility(shiftedVal, typeof(T), out var compatibility))
+                        {
+                            DynamicValue = (T)Runner.TypeValidator.Cast(shiftedVal, typeof(T), compatibility);
+                        }
+
+                    }
+                    catch (Exception) { }
+                }
+            }
+        }
+
+        public void BitShiftRight()
+        {
+            // this is a war crime i'm sure of it
+            try
+            {
+                DynamicValue >>= 1;
+            }
+            catch (RuntimeBinderException e)
+            {
+                if (e.Message.StartsWith("Cannot implicitly convert type 'int' to"))
+                {
+                    try
+                    {
+                        int shiftedVal = ((int)DynamicValue) >> 1;
+
+                        if (BlazorRunner.Runner.TypeValidator.TryGetCompatibility(shiftedVal, typeof(T), out var compatibility))
+                        {
+                            DynamicValue = (T)Runner.TypeValidator.Cast(shiftedVal, typeof(T), compatibility);
+                        }
+                    }
+                    catch (Exception) { }
+                }
+            }
         }
     }
 }

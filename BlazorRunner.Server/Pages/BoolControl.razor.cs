@@ -6,20 +6,28 @@ using System.Threading.Tasks;
 
 namespace BlazorRunner.Server.Pages
 {
-    public partial class StringPicker : ComponentBase
+    public partial class BoolControl : ComponentBase
     {
         [Parameter]
         public Action<object> OnChange { get; set; }
 
-        public string InputText
+        public bool Value
         {
-            get => _InputText;
+            get => _Value;
             set
             {
-                _InputText = value;
+                _Value = value;
                 OnChange?.Invoke(value);
             }
         }
-        private string _InputText = "";
+
+        private bool _Value = false;
+
+        private string ButtonColor => Value ? "btn-primary" : "btn-outline-primary";
+
+        public void ToggleValue()
+        {
+            Value = !Value;
+        }
     }
 }

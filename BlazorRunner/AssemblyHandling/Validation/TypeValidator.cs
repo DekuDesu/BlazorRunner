@@ -85,6 +85,11 @@ namespace BlazorRunner.Runner
             // default to none
             Compatibility = CastingCompatibility.none;
 
+            if (Instance is null)
+            {
+                return false;
+            }
+
             if (Instance.GetType() == DesiredType)
             {
                 Compatibility = CastingCompatibility.SameType;

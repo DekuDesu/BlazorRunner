@@ -15,6 +15,8 @@ namespace BlazorRunner.Server.Pages
 
         private readonly T[] Values = (T[])Enum.GetValues(typeof(T));
 
+        private readonly int[] IntValues = (int[])Enum.GetValues(typeof(T));
+
         public T Value { get; set; } = default;
 
         public string SelectedName = "";
@@ -27,6 +29,7 @@ namespace BlazorRunner.Server.Pages
                 Value = Values[value];
                 SelectedName = Names[value];
                 _Selected = value;
+                OnChange?.Invoke(Value);
             }
         }
 

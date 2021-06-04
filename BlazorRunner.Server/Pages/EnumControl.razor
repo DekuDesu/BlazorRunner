@@ -4,11 +4,11 @@
     <div class="input-group w-100">
         <label class="input-group-text" for="inputGroupSelect01">@(typeof(T).Name)</label>
         <select class="form-select" id="inputGroupSelect01">
-            <option selected @onclick="()=>Selected = 0">@(default(T))</option>
+            <option selected @onclick="()=>Selected = 0">@(default(T)) = @(IntValues[0])</option>
             @for (int i = 1; i < Names.Length; i++)
             {
                 int tmp = i;
-                <option value="tmp" @onclick="()=>Selected = tmp">@(Values[i])</option>
+                <option value="tmp" @onclick="()=>Selected = tmp">@(Values[tmp]) = @(IntValues[tmp])</option>
             }
         </select>
     </div>

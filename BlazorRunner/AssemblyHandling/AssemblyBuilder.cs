@@ -10,6 +10,51 @@ namespace BlazorRunner.Runner
 {
     public class AssemblyBuilder : IAssemblyBuilder
     {
+        public static readonly object[] DefaultSliderMininums = {
+            sbyte.MinValue,
+            (byte)0,
+            short.MinValue,
+            (ushort)0,
+            int.MinValue,
+            (uint)0,
+            (long)-1_000_000_000_000,
+            (ulong)0,
+            -1f,
+            -1d,
+            -1m,
+            char.MinValue
+        };
+
+        public static readonly object[] DefaultSliderMaximums = {
+            sbyte.MaxValue,
+            byte.MaxValue,
+            short.MaxValue,
+            ushort.MaxValue,
+            int.MaxValue,
+            uint.MaxValue,
+            (long)1_000_000_000_000,
+            (ulong)1_000_000_000_000,
+            1f,
+            1d,
+            1m,
+            char.MaxValue
+        };
+
+        public static readonly object[] DefaultSliderStepSizes = {
+            (sbyte)1,
+            (byte)1,
+            (short)1,
+            (ushort)1,
+            (int)1,
+            (uint)1,
+            (long)1,
+            (ulong)1,
+            0.000001f,
+            0.000001d,
+            0.000001m,
+            (char)1
+        };
+
         public IScriptAssembly Parse(Assembly assembly)
         {
             IScriptAssembly newScriptAssembly = Factory.CreateScriptAssembly();
@@ -134,12 +179,25 @@ namespace BlazorRunner.Runner
 
             var RangeAttribute = MemberInfo.GetCustomAttribute<RangeAttribute>();
 
+            object Instance = instancedSetting.Value;
+
+            if (instancedSetting is ISlider slider)
+            {
+                // get the defaults
+                int index = Array.IndexOf(DefaultSliderMininums, DefaultSliderMininums.Where(x => x.GetType() == Instance.GetType()).FirstOrDefault());
+
+                if (index != -1)
+                {
+                    slider.Min = DefaultSliderMininums[index];
+                    slider.Max = DefaultSliderMaximums[index];
+                    slider.StepSize = DefaultSliderStepSizes[index];
+                }
+            }
+
             if (RangeAttribute is null)
             {
                 return;
             }
-
-            object Instance = instancedSetting.Value;
 
             // there is a possibility they are null make sure they are not
             if (Instance != null && MemberInfo != null)
@@ -185,12 +243,12 @@ namespace BlazorRunner.Runner
                         RangeAttribute.StepAmount = GetDefaultSliderValue(EligibleType);
                     }
 
-                    if (instancedSetting is ISlider slider)
+                    if (instancedSetting is ISlider slider1)
                     {
-                        slider.Min = RangeAttribute.Min;
-                        slider.Max = RangeAttribute.Max;
-                        slider.StepSize = RangeAttribute.StepAmount;
-                        slider.SliderCompatible = true;
+                        slider1.Min = RangeAttribute.Min;
+                        slider1.Max = RangeAttribute.Max;
+                        slider1.StepSize = RangeAttribute.StepAmount;
+                        slider1.SliderCompatible = true;
                     }
                 }
             }
@@ -198,7 +256,7 @@ namespace BlazorRunner.Runner
 
         private object GetDefaultSliderValue(Type DesiredType)
         {
-            object defaultVal = TypeValidator.DefaultNonZeroPrimitives.Where(x => x.GetType() == DesiredType).FirstOrDefault();
+            object defaultVal = DefaultSliderStepSizes.Where(x => x.GetType() == DesiredType).FirstOrDefault();
             if (defaultVal != null)
             {
                 return defaultVal;

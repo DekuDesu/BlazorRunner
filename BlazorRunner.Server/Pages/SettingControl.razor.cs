@@ -12,11 +12,42 @@ namespace BlazorRunner.Server.Pages
         [Parameter]
         public IScriptSetting Setting { get; set; }
 
+        private object Min => ((ISlider)Setting).Min;
+
+        private object Max => ((ISlider)Setting).Max;
+
+        private object StepSize => ((ISlider)Setting).StepSize;
+
+        public TypeCode ParamType { get; set; }
+
         public void UpdateValue(object value)
         {
             Setting.Value = value;
         }
 
         public object GetValue() => Setting.Value;
+
+        protected override async Task OnParametersSetAsync()
+        {
+            await base.OnParametersSetAsync();
+        }
+
+        protected override void OnInitialized()
+        {
+
+            base.OnInitialized();
+
+            if (Setting != null)
+            {
+                if (Setting.IsField)
+                {
+                    ParamType = Type.GetTypeCode(Setting.BackingField.FieldType);
+                }
+                else
+                {
+                    ParamType = Type.GetTypeCode(Setting.BackingProperty.PropertyType);
+                }
+            }
+        }
     }
 }

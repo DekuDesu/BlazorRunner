@@ -1,9 +1,51 @@
 ﻿<li class="list-group-item list-group-item" style="text-align: center;">
-    <h5>Slider Control</h5>
-    <div class="text-muted">This is a description of this control explaining what it does and why and it should be long to amplify what it might look like when people put really long descriptions with no persiods for wahteevr reasons</div>
-    <div>
-        <label for="customRange3" class="form-label">Example range</label>
-        <input type="range" class="form-range" min="0" max="5" step="0.5" id="customRange3">
-    </div>
-
+    <h5>@Setting.Name</h5>
+    <div class="text-muted">@(Setting.Description ?? "")</div>
+    @switch (ParamType)
+    {
+        case TypeCode.Boolean:
+            <BoolControl OnChange="UpdateValue"></BoolControl>
+            break;
+        case TypeCode.Char:
+            <PrimitiveSlider OnChange="UpdateValue" T="char" EnableSliderConstraints="false" EnableBitShift="true" LimitTextInputLength="1" Min="0" Max="65535" StepAmount="1" SliderTextTypeOverride="typeof(ushort)"></PrimitiveSlider>
+            break;
+        case TypeCode.SByte:
+            <PrimitiveSlider OnChange="UpdateValue" T="sbyte" EnableBitShift="false" Min="Min" Max="Max" StepAmount="StepSize"></PrimitiveSlider>
+            break;
+        case TypeCode.Byte:
+            <PrimitiveSlider OnChange="UpdateValue" T="byte" EnableBitShift="false" Min="Min" Max="Max" StepAmount="StepSize"></PrimitiveSlider>
+            break;
+        case TypeCode.Int16:
+            <PrimitiveSlider OnChange="UpdateValue" T="short" EnableBitShift="false" Min="Min" Max="Max" StepAmount="StepSize"></PrimitiveSlider>
+            break;
+        case TypeCode.UInt16:
+            <PrimitiveSlider OnChange="UpdateValue" T="ushort" EnableBitShift="false" Min="Min" Max="Max" StepAmount="StepSize"></PrimitiveSlider>
+            break;
+        case TypeCode.Int32:
+            <PrimitiveSlider OnChange="UpdateValue" T="int" EnableBitShift="true" Min="Min" Max="Max" StepAmount="StepSize"></PrimitiveSlider>
+            break;
+        case TypeCode.UInt32:
+            <PrimitiveSlider OnChange="UpdateValue" T="uint" EnableBitShift="true" Min="Min" Max="Max" StepAmount="StepSize"></PrimitiveSlider>
+            break;
+        case TypeCode.Int64:
+            <PrimitiveSlider OnChange="UpdateValue" T="long" EnableBitShift="true" Min="Min" Max="Max" StepAmount="StepSize" EnableSlider="false"></PrimitiveSlider>
+            break;
+        case TypeCode.UInt64:
+            <PrimitiveSlider OnChange="UpdateValue" T="ulong" EnableBitShift="true" Min="Min" Max="Max" StepAmount="StepSize" EnableSlider="false"></PrimitiveSlider>
+            break;
+        case TypeCode.Single:
+            <PrimitiveSlider OnChange="UpdateValue" T="float" EnableBitShift="false" Min="Min" Max="Max" StepAmount="StepSize"></PrimitiveSlider>
+            break;
+        case TypeCode.Double:
+            <PrimitiveSlider OnChange="UpdateValue" T="double" EnableBitShift="false" Min="Min" Max="Max" StepAmount="StepSize"></PrimitiveSlider>
+            break;
+        case TypeCode.Decimal:
+            <PrimitiveSlider OnChange="UpdateValue" T="decimal" EnableBitShift="false" Min="Min" Max="Max" StepAmount="StepSize"></PrimitiveSlider>
+            break;
+        case TypeCode.String:
+            <StringPicker OnChange="UpdateValue"></StringPicker>
+            break;
+        default:
+            break;
+    }
 </li>
