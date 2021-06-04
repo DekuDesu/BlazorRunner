@@ -11,5 +11,18 @@ namespace BlazorRunner.Server.Pages
     {
         [Parameter]
         public IInvokableMember Member { get; set; }
+
+        private bool Running = false;
+
+        public async Task InvokeMember()
+        {
+            Running = true;
+
+            Member?.Invoke();
+
+            await Task.Delay(500);
+
+            Running = false;
+        }
     }
 }

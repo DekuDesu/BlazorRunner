@@ -75,7 +75,7 @@ namespace ServerTestAssembly
         [Description("Displays a different message than hello world")]
         public void ExtraStuff()
         {
-
+            Console.WriteLine($"{Crocodile}");
         }
 
         public void HiddenStuff()

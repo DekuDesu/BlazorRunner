@@ -1,5 +1,20 @@
 ﻿<li class="list-group-item list-group-item-action border border-bottom" style="text-align: center;">
-    <h5>@Member.Name</h5>
+    <div>
+        <span class="h5">@Member.Name</span>
+        <span class="badge bg-success">Running</span>
+    </div>
     <div class="text-muted">@(Member.Description ?? "")</div>
+    <button class="btn btn-outline-success w-100 my-2 @(Running ? "disabled" : "")" title="Run Script" @onclick="InvokeMember">
+        @if (Running)
+        {
+            <div class="spinner-border spinner-border-success" style="width: 1.5rem; height: 1.5rem;" role="status">
+                <span class="visually-hidden"></span>
+            </div>
+        }
+        else
+        {
+            <span class="oi oi-play-circle" style="font-size: 1.5em;"></span>
+        }
 
+    </button>
 </li>
