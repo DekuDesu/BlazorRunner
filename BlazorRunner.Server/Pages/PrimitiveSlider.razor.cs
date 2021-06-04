@@ -25,13 +25,13 @@ namespace BlazorRunner.Server.Pages
         public bool EnableSliderConstraints { get; set; } = true;
 
         [Parameter]
-        public object Min { get; set; } = default;
+        public object Min { get; set; } = default(T);
 
         [Parameter]
-        public object Max { get; set; } = default;
+        public object Max { get; set; } = default(T);
 
         [Parameter]
-        public object StepAmount { get; set; } = default;
+        public object StepAmount { get; set; } = default(T);
 
         [Parameter]
         public int LimitTextInputLength { get; set; } = -1;
@@ -67,6 +67,9 @@ namespace BlazorRunner.Server.Pages
 
         private T _Value { get; set; } = default;
 
+        [Parameter]
+        public object DefaultValue { get; set; }
+
         public string InputText
         {
             get => _InputText;
@@ -95,6 +98,7 @@ namespace BlazorRunner.Server.Pages
             get => _SliderValue;
             set
             {
+                // this probably another war crime
                 if (SliderTextTypeOverride != null)
                 {
                     if (BlazorRunner.Runner.TypeValidator.TryGetCompatibility(value, SliderTextTypeOverride, out var compatibility))
@@ -114,6 +118,7 @@ namespace BlazorRunner.Server.Pages
                 }
             }
         }
+
         public string _SliderValue = default(T).ToString();
 
         public dynamic DynamicValue
@@ -130,6 +135,11 @@ namespace BlazorRunner.Server.Pages
             await base.OnParametersSetAsync();
 
             SliderTypeName = typeof(T).Name;
+
+            if (DefaultValue != null)
+            {
+                DynamicValue = DefaultValue;
+            }
         }
 
         public void Increment()
@@ -156,7 +166,7 @@ namespace BlazorRunner.Server.Pages
             // this monstrocity was the only way i could make all types without knowing their types with this stupid component
             try
             {
-                DynamicValue >>= 1;
+                DynamicValue <<= 1;
             }
             catch (RuntimeBinderException e)
             {

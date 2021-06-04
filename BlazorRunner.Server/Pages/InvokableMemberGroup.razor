@@ -1,10 +1,10 @@
-﻿<ul class="list-group my-4">
+﻿<ul class="list-group my-2">
     <li class="list-group-item list-group-item-secondary" style="text-align:center;">
         <span class="h5">@Name</span>
     </li>
-    @for (int i = 0; i < (Settings?.Length ?? 0); i++)
+    @for (int i = 0; i < (Members?.Length ?? 0); i++)
     {
         int index = i;
-        <SettingControl Setting=Settings[index]></SettingControl>
+        <InvokableMemberControl Member=@Members[index]></InvokableMemberControl>
     }
 </ul>

@@ -10,7 +10,7 @@ namespace BlazorRunner.Attributes
     /// Defines any property or field that should appear in the UX as a user-changable value, For example a <see langword="bool"/> field would appear as a toggle button, or a <see langword="double"/> property might appear as a slider
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    public class SettingAttribute : System.Attribute
+    public class SettingAttribute : System.Attribute, ISupportsGrouping
     {
         /// <summary>
         /// Allows you to combine settings into groups that will appear next to each other. This is NOT case sensitive

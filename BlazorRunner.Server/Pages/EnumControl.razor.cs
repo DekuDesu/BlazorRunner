@@ -6,18 +6,24 @@ using System.Threading.Tasks;
 
 namespace BlazorRunner.Server.Pages
 {
-    public partial class EnumControl<T> : ComponentBase where T : System.Enum
+    public partial class EnumControl : ComponentBase
     {
         [Parameter]
-        public Action<T> OnChange { get; set; }
+        public Action<object> OnChange { get; set; }
 
-        private readonly string[] Names = Enum.GetNames(typeof(T));
+        [Parameter]
+        public object DefaultValue { get; set; }
 
-        private readonly T[] Values = (T[])Enum.GetValues(typeof(T));
+        [Parameter]
+        public Type EnumType { get; set; }
 
-        private readonly int[] IntValues = (int[])Enum.GetValues(typeof(T));
+        private string[] Names = Array.Empty<string>();
 
-        public T Value { get; set; } = default;
+        private object[] Values = Array.Empty<object>();
+
+        private int[] IntValues = Array.Empty<int>();
+
+        public object Value { get; set; } = default;
 
         public string SelectedName = "";
 
@@ -34,5 +40,27 @@ namespace BlazorRunner.Server.Pages
         }
 
         private int _Selected = 0;
+
+        protected override async Task OnInitializedAsync()
+        {
+            await base.OnInitializedAsync();
+            if (EnumType != null)
+            {
+                Names = Enum.GetNames(EnumType);
+
+                var enumArr = Enum.GetValues(EnumType);
+
+                Values = new object[enumArr.Length];
+
+                enumArr.CopyTo(Values, 0);
+
+                IntValues = (int[])Enum.GetValues(EnumType);
+            }
+
+            if (DefaultValue != null)
+            {
+                Value = DefaultValue;
+            }
+        }
     }
 }

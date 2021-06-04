@@ -1,10 +1,8 @@
-﻿@typeparam T
-
-<div class="btn-toolbar mb-3 w-100" role="toolbar" aria-label="Toolbar with button groups">
+﻿<div class="btn-toolbar w-100" role="toolbar" aria-label="Toolbar with button groups">
     <div class="input-group w-100">
-        <label class="input-group-text" for="inputGroupSelect01">@(typeof(T).Name)</label>
+        <label class="input-group-text font-weight-bold" for="inputGroupSelect01">@(EnumType?.Name ?? "Loading")</label>
         <select class="form-select" id="inputGroupSelect01">
-            <option selected @onclick="()=>Selected = 0">@(default(T)) = @(IntValues[0])</option>
+            <option selected @onclick="()=>Selected = 0">@(Values.FirstOrDefault()) = @(IntValues.FirstOrDefault())</option>
             @for (int i = 1; i < Names.Length; i++)
             {
                 int tmp = i;

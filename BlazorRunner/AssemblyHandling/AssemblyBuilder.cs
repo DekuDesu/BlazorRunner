@@ -17,7 +17,7 @@ namespace BlazorRunner.Runner
             (ushort)0,
             int.MinValue,
             (uint)0,
-            (long)-1_000_000_000_000,
+            long.MinValue,
             (ulong)0,
             -1f,
             -1d,
@@ -32,8 +32,8 @@ namespace BlazorRunner.Runner
             ushort.MaxValue,
             int.MaxValue,
             uint.MaxValue,
-            (long)1_000_000_000_000,
-            (ulong)1_000_000_000_000,
+            long.MaxValue,
+            ulong.MaxValue,
             1f,
             1d,
             1m,
@@ -180,6 +180,11 @@ namespace BlazorRunner.Runner
             var RangeAttribute = MemberInfo.GetCustomAttribute<RangeAttribute>();
 
             object Instance = instancedSetting.Value;
+
+            if (Instance is null)
+            {
+                return;
+            }
 
             if (instancedSetting is ISlider slider)
             {
@@ -411,7 +416,12 @@ namespace BlazorRunner.Runner
 
         private string AssignGroup(object possibleGroupedObject, MemberInfo type)
         {
-            var groupAttr = type.GetCustomAttribute<SettingAttribute>();
+            ISupportsGrouping groupAttr = type.GetCustomAttribute<SettingAttribute>();
+
+            if (groupAttr is null)
+            {
+                groupAttr = type.GetCustomAttribute<MiniScriptAttribute>();
+            }
 
             if (possibleGroupedObject is IGrouped groupedObject)
             {

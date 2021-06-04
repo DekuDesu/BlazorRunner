@@ -20,6 +20,20 @@ namespace BlazorRunner.Server.Pages
                 OnChange?.Invoke(value);
             }
         }
+
         private string _InputText = "";
+
+        [Parameter]
+        public object DefaultValue { get; set; }
+
+        protected override async Task OnInitializedAsync()
+        {
+            await base.OnInitializedAsync();
+
+            if (DefaultValue != null)
+            {
+                InputText = DefaultValue.ToString();
+            }
+        }
     }
 }

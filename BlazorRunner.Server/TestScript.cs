@@ -7,27 +7,50 @@ namespace ServerTestAssembly
     [Description("My script description")]
     public class MyExampleScript : IDisposable
     {
-        [Setting(Group = "Number Settings")]
-        [Name("Max Count")]
-        [Description("Gets; Sets; the number of times hello world should be printed")]
-        public int N { get; set; }
+        [Setting(Group = "Small Integers")]
+        public sbyte Canary { get; set; }
 
-        [Setting(Group = "Number Settings")]
-        public double DummyValue = 0.0f;
+        [Setting(Group = "Small Integers")]
+        public byte Mole { get; set; }
 
-        public double NotCounted { get; set; } = 2.3f;
+        [Setting(Group = "Small Integers")]
+        public short GuineaPig { get; set; }
 
-        [Setting(Group = "Text Settings")]
-        [Name("Message")]
-        [Description("The message that should be displayed instead of hello world")]
-        public string Text = "Hello World";
+        [Setting(Group = "Small Integers")]
+        public ushort Chamois { get; set; }
 
-        [Setting]
-        [Range(Min = "4", Max = byte.MaxValue, StepAmount = 2)]
-        public byte LimitedByte = 14;
+        [Setting(Group = "Large Integers")]
+        public int Cat { get; set; }
 
-        [Setting(Group = "Number Settings")]
-        public char CustomChar = '\u006A';
+        [Setting(Group = "Large Integers")]
+        public uint Porpoise { get; set; }
+
+        [Setting(Group = "Large Integers")]
+        public long Mustang { get; set; }
+
+        [Setting(Group = "Large Integers")]
+        public ulong Jackal { get; set; }
+
+        [Setting(Group = "Floating Points")]
+        public float Colt { get; set; }
+
+        [Setting(Group = "Floating Points")]
+        public double Gopher { get; set; }
+
+        [Setting(Group = "Floating Points")]
+        public decimal Parakeet { get; set; }
+
+        [Setting(Group = "Bools")]
+        public bool Porcupine { get; set; }
+
+        [Setting(Group = "Enums")]
+        public TypeCode Puppy { get; set; }
+
+        [Setting(Group = "Guids")]
+        public Guid Muskrat { get; set; }
+
+        [Setting(Group = "Strings")]
+        public string Crocodile { get; set; }
 
         [Setup]
         public void Before()
@@ -47,7 +70,7 @@ namespace ServerTestAssembly
 
         }
 
-        [MiniScript]
+        [MiniScript(Group = "Mini Scripts")]
         [Name("Alternate Message")]
         [Description("Displays a different message than hello world")]
         public void ExtraStuff()

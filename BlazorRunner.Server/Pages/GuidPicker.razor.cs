@@ -9,7 +9,7 @@ namespace BlazorRunner.Server.Pages
     public partial class GuidPicker : ComponentBase
     {
         [Parameter]
-        public Action<Guid> OnChange { get; set; }
+        public Action<object> OnChange { get; set; }
 
         public string InputText
         {
@@ -24,6 +24,9 @@ namespace BlazorRunner.Server.Pages
             }
         }
         private string _InputText = "";
+
+        [Parameter]
+        public object DefaultValue { get; set; }
 
         public Guid Id
         {
@@ -62,6 +65,16 @@ namespace BlazorRunner.Server.Pages
             {
                 newId = default;
                 return false;
+            }
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            await base.OnInitializedAsync();
+
+            if (DefaultValue != null)
+            {
+                Id = (Guid)DefaultValue;
             }
         }
     }

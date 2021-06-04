@@ -7,10 +7,22 @@
         <span class="text-muted">This is a description of the script, it is very verbose so we can see how it wraps if it does</span>
     </li>
     <li class="list-group-item">
-        @for (int i = 0; i < (Script?.SettingGroups?.Count ?? 0); i++)
-        {
-            <SettingGroup Name=@Script.SettingGroups.ElementAt(i).Key Settings=@Script.SettingGroups.ElementAt(i).Value></SettingGroup>
-        }
+        <div class="flex justify-content-between">
+            <div class="d-inline-flex" style="max-width: 450px;">
+                <div class="w100">
+                    @for (int i = 0; i < (Script?.SettingGroups?.Count ?? 0); i++)
+                    {
+                        <SettingGroup Name=@Script.SettingGroups.ElementAt(i).Key Settings=@Script.SettingGroups.ElementAt(i).Value></SettingGroup>
+                    }
+                </div>
+            </div>
+            <div class="d-inline-flex flex-grow-0">
+                @for (int i = 0; i < (Script?.ScriptGroups?.Count ?? 0); i++)
+                {
+                    <InvokableMemberGroup Name=@Script.ScriptGroups.ElementAt(i).Key Members=@Script.ScriptGroups.ElementAt(i).Value></InvokableMemberGroup>
+                }
+            </div>
+        </div>
     </li>
     <li class="list-group-item list-group-item-secondary ">
         <button class="btn btn-outline-success" title="Run Script">
