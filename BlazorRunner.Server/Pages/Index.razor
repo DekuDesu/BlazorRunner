@@ -1,6 +1,12 @@
 ﻿@page "/"
+@implements IDisposable
 
 @inject IAssemblyBuilder builder
+
+
+<button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">
+    Toggle right offcanvas
+</button>
 
 <div class="flex">
     @for (int i = 0; i < (ImportedTestAssembly?.Length ?? 0); i++)
@@ -9,11 +15,63 @@
     }
 </div>
 
+<div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasScrollingLabel">
+            Script Queue
+        </h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="d-flex flex-row justify-content-around w-100">
+        <div class="d-flex">
+            <div class="h5">Running <span class="badge bg-success">4</span></div>
+        </div>
+        <div class="d-flex">
+            <div class="h5">Queued <span class="badge bg-primary">12</span></div>
+        </div>
+    </div>
+    <div class="offcanvas-body">
+        <div class="card text-dark bg-light w-100 my-2" style="">
+            <div class="card-header d-flex flex-row justify-content-between w-100">
+                <div class="d-inline-flex">
+                    <div>
+                        Alternate Message
+                        <span class="badge bg-success">Running</span>
+                        <span class="badge bg-secondary">14s</span>
+                        <div class="text-muted">
+                            Displays a different message than hello world
+                        </div>
+                        <div class="text-primary text-center">
+                            Are you sure you want to end <b>Alternate Message</b>?
+                        </div>
+                        <div>
+                            <div class="d-flex flex-row justify-content-lg-center">
+                                <button type="button" class="btn btn-warning w-50 mx-1">Yes</button>
+                                <button type="button" class="btn btn-primary w-50 mx-1">No</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <button type="button" class="btn-close text-reset"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @code{
     IScriptAssembly ImportedTestAssembly = null;
+
+    public static TaskDirector Director = new();
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         ImportedTestAssembly = builder.Parse(typeof(ServerTestAssembly.MyExampleScript).Assembly);
+    }
+    public void Dispose()
+    {
+        Director?.Dispose();
     }
 }

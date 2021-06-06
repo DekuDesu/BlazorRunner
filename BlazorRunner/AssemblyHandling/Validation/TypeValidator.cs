@@ -28,27 +28,53 @@ namespace BlazorRunner.Runner
 
         public const TypeCode PrimitiveTypes = TypeCode.SByte | TypeCode.Byte | TypeCode.Int16 | TypeCode.UInt16 | TypeCode.Int32 | TypeCode.UInt32 | TypeCode.Int64 | TypeCode.UInt64 | TypeCode.Single | TypeCode.Double | TypeCode.Decimal;
 
-        public const BinaryTypeCode ImplicitSbyteConversions = (BinaryTypeCode.Int16 | BinaryTypeCode.Int32 | BinaryTypeCode.Int64 | BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.SByte);
+        public const int ImplicitSbyteConversions = (int)(BinaryTypeCode.Int16 | BinaryTypeCode.Int32 | BinaryTypeCode.Int64 | BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.SByte);
 
-        public const BinaryTypeCode ImplicitByteConversions = (BinaryTypeCode.Int16 | BinaryTypeCode.UInt16 | BinaryTypeCode.Int32 | BinaryTypeCode.UInt32 | BinaryTypeCode.Int64 | BinaryTypeCode.UInt64 | BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.Byte);
+        public const int ImplicitByteConversions = (int)(BinaryTypeCode.Int16 | BinaryTypeCode.UInt16 | BinaryTypeCode.Int32 | BinaryTypeCode.UInt32 | BinaryTypeCode.Int64 | BinaryTypeCode.UInt64 | BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.Byte);
 
-        public const BinaryTypeCode ImplicitShortConversions = (BinaryTypeCode.Int32 | BinaryTypeCode.Int64 | BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.Int16);
+        public const int ImplicitShortConversions = (int)(BinaryTypeCode.Int32 | BinaryTypeCode.Int64 | BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.Int16);
 
-        public const BinaryTypeCode ImplicitUShortConversions = (BinaryTypeCode.Int32 | BinaryTypeCode.UInt32 | BinaryTypeCode.Int64 | BinaryTypeCode.UInt64 | BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.UInt16);
+        public const int ImplicitUShortConversions = (int)(BinaryTypeCode.Int32 | BinaryTypeCode.UInt32 | BinaryTypeCode.Int64 | BinaryTypeCode.UInt64 | BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.UInt16);
 
-        public const BinaryTypeCode ImplicitIntConversions = (BinaryTypeCode.Int64 | BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.Int32);
+        public const int ImplicitIntConversions = (int)(BinaryTypeCode.Int64 | BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.Int32);
 
-        public const BinaryTypeCode ImplicitUIntConversions = (BinaryTypeCode.Int64 | BinaryTypeCode.UInt64 | BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.UInt32);
+        public const int ImplicitUIntConversions = (int)(BinaryTypeCode.Int64 | BinaryTypeCode.UInt64 | BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.UInt32);
 
-        public const BinaryTypeCode ImplicitLongConversions = (BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.Int64);
+        public const int ImplicitLongConversions = (int)(BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.Int64);
 
-        public const BinaryTypeCode ImplicitULongConversions = (BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.UInt64);
+        public const int ImplicitULongConversions = (int)(BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.UInt64);
 
-        public const BinaryTypeCode ImplicitFloatConversions = BinaryTypeCode.Double | BinaryTypeCode.Single;
+        public const int ImplicitFloatConversions = (int)(BinaryTypeCode.Double | BinaryTypeCode.Single);
 
-        public const BinaryTypeCode ImplicitDoubleConversions = BinaryTypeCode.Double;
+        public const int ImplicitDoubleConversions = (int)BinaryTypeCode.Double;
 
-        public const BinaryTypeCode ImplicitDecimalConversions = BinaryTypeCode.Decimal;
+        public const int ImplicitDecimalConversions = (int)BinaryTypeCode.Decimal;
+
+        public const int ImplicitCharConversions = (int)(BinaryTypeCode.UInt16 | BinaryTypeCode.Int32 | BinaryTypeCode.UInt32 | BinaryTypeCode.Int64 | BinaryTypeCode.UInt64 | BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal);
+
+        public const int BoolConversions = (int)BinaryTypeCode.Boolean;
+
+        public static readonly int[] Conversions = {
+            0,
+            0,
+            0,
+            BoolConversions,
+            ImplicitCharConversions,
+            ImplicitSbyteConversions,
+            ImplicitByteConversions,
+            ImplicitShortConversions,
+            ImplicitUShortConversions,
+            ImplicitIntConversions,
+            ImplicitUIntConversions,
+            ImplicitLongConversions,
+            ImplicitULongConversions,
+            ImplicitFloatConversions,
+            ImplicitDoubleConversions,
+            ImplicitDecimalConversions,
+            0,
+            0,
+            0
+        };
 
         /// <summary>
         /// Attempts to search the collection defined by <paramref name="ValidatorType"/> and if the object is an instance of any of
@@ -85,9 +111,16 @@ namespace BlazorRunner.Runner
             // default to none
             Compatibility = CastingCompatibility.none;
 
+
             if (Instance is null)
             {
-                return false;
+                // if the instance is null and the destination is something that cant be null return false
+                if (DesiredType.IsValueType)
+                {
+                    return false;
+                }
+
+                return true;
             }
 
             if (Instance.GetType() == DesiredType)
@@ -148,13 +181,12 @@ namespace BlazorRunner.Runner
             switch (compatibility)
             {
                 case CastingCompatibility.SameType:
+                case CastingCompatibility.Implicit:
                     return Instance;
                 case CastingCompatibility.Explicit:
                     return Convert.ChangeType(Instance, DesiredType);
                 case CastingCompatibility.Parsable:
                     return Convert.ChangeType(StripNumericalSymbols(Instance.ToString()), DesiredType);
-                case CastingCompatibility.Implicit:
-                    return Instance;
                 default:
                     return Instance;
             }
@@ -171,53 +203,23 @@ namespace BlazorRunner.Runner
 
         public static bool IsImplicitlyCastable(object Instance, Type DesiredType)
         {
-            Type InstanceType = Instance.GetType();
+            if (Instance is null)
+            {
+                return false;
+            }
 
-            TypeCode instanceTypeCode = Type.GetTypeCode(InstanceType);
-            TypeCode desiredTypeCode = Type.GetTypeCode(DesiredType);
+            // get the typecode of the instance
+            int instanceTypeCode = (int)Type.GetTypeCode(Instance.GetType());
+
+            // get the typecode of the desired type
+            int desiredTypeCode = (int)Type.GetTypeCode(DesiredType);
 
             // convert system typecode to binary so we can do bit math to determine implicit casting
-            BinaryTypeCode desiredBinaryCode = (BinaryTypeCode)Enum.Parse(typeof(BinaryTypeCode), desiredTypeCode.ToString());
+            int desiredBinaryCode = 1 << (desiredTypeCode - 1);
 
             // im so sorry for this
-            switch (instanceTypeCode)
-            {
-                case TypeCode.SByte:
-                    return (desiredBinaryCode & ImplicitSbyteConversions) != BinaryTypeCode.Empty;
+            return (desiredBinaryCode & Conversions[instanceTypeCode]) != 0;
 
-                case TypeCode.Byte:
-                    return (desiredBinaryCode & ImplicitByteConversions) != BinaryTypeCode.Empty;
-
-                case TypeCode.Int16:
-                    return (desiredBinaryCode & ImplicitShortConversions) != BinaryTypeCode.Empty;
-
-                case TypeCode.UInt16:
-                    return (desiredBinaryCode & ImplicitUShortConversions) != BinaryTypeCode.Empty;
-
-                case TypeCode.Int32:
-                    return (desiredBinaryCode & ImplicitIntConversions) != BinaryTypeCode.Empty;
-
-                case TypeCode.UInt32:
-                    return (desiredBinaryCode & ImplicitUIntConversions) != BinaryTypeCode.Empty;
-
-                case TypeCode.Int64:
-                    return (desiredBinaryCode & ImplicitLongConversions) != BinaryTypeCode.Empty;
-
-                case TypeCode.UInt64:
-                    return (desiredBinaryCode & ImplicitULongConversions) != BinaryTypeCode.Empty;
-
-                case TypeCode.Single:
-                    return (desiredBinaryCode & ImplicitFloatConversions) != BinaryTypeCode.Empty;
-
-                case TypeCode.Double:
-                    return (desiredBinaryCode & ImplicitDoubleConversions) != BinaryTypeCode.Empty;
-
-                case TypeCode.Decimal:
-                    return (desiredBinaryCode & ImplicitDecimalConversions) != BinaryTypeCode.Empty;
-
-                default:
-                    return false;
-            }
         }
     }
 }

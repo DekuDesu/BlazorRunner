@@ -99,6 +99,7 @@ namespace BlazorRunner.Tests
             Assert.True(TypeValidator.IsImplicitlyCastable(instance, typeof(float)));
             Assert.True(TypeValidator.IsImplicitlyCastable(instance, typeof(double)));
             Assert.True(TypeValidator.IsImplicitlyCastable(instance, typeof(decimal)));
+
         }
 
         [Fact]
@@ -207,6 +208,41 @@ namespace BlazorRunner.Tests
             Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(float)));
             Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(double)));
             Assert.True(TypeValidator.IsImplicitlyCastable(instance, typeof(decimal)));
+        }
+
+        [Fact]
+        public void Object()
+        {
+            object instance = new object();
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(sbyte)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(byte)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(short)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(ushort)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(int)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(uint)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(long)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(ulong)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(float)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(double)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(decimal)));
+        }
+
+        [Fact]
+        public void NullNeverImplicit()
+        {
+            object instance = null;
+
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(sbyte)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(byte)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(short)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(ushort)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(int)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(uint)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(long)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(ulong)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(float)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(double)));
+            Assert.False(TypeValidator.IsImplicitlyCastable(instance, typeof(decimal)));
         }
     }
 }
