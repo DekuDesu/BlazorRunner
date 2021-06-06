@@ -394,24 +394,15 @@ namespace BlazorRunner.Runner
 
         private void AssignFlavorText(object script, MemberInfo type)
         {
-
-            // determine if the type was labeled with optional flavor text
-            IDictionary<string, string> labels = GetFlavorText(type);
-
-            if (labels.Count > 0)
+            if (Helpers.Attributes.TryAssignProperties<NameAttribute>(type, script) is false)
             {
                 if (script is IBasicInfo info)
                 {
-                    if (labels.ContainsKey("Name"))
-                    {
-                        info.Name = labels["Name"];
-                    }
-                    if (labels.ContainsKey("Description"))
-                    {
-                        info.Description = labels["Description"];
-                    }
+                    info.Name = type.Name;
                 }
             }
+
+            Helpers.Attributes.TryAssignProperties<DescriptionAttribute>(type, script);
         }
 
         private string AssignGroup(object possibleGroupedObject, MemberInfo type)
@@ -446,38 +437,6 @@ namespace BlazorRunner.Runner
             }
 
             return Activator.CreateInstance(scriptType);
-        }
-
-        IDictionary<string, string> GetFlavorText(MemberInfo type)
-        {
-            var flavorText = new Dictionary<string, string>();
-
-            flavorText.Add("Name", GetFlavorAttribute<NameAttribute>(type) ?? type.Name);
-
-            string description = GetFlavorAttribute<DescriptionAttribute>(type);
-
-            if (description != null)
-            {
-                flavorText.Add("Description", description);
-            }
-
-            return flavorText;
-        }
-
-        private string GetFlavorAttribute<T>(MemberInfo type) where T : Attribute
-        {
-            T attribute = type.GetCustomAttribute<T>();
-
-            if (attribute != null)
-            {
-                Type attributeType = attribute.GetType();
-
-                string propertyName = attributeType.Name.Split("Attribute")[0];
-
-                return (string)attribute.GetType().GetProperty(propertyName).GetValue(attribute);
-            }
-
-            return null;
         }
 
         private IEnumerable<Type> GetTypesWithAttribute<T>(Assembly assembly) where T : Attribute

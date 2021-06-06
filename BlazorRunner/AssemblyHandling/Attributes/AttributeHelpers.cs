@@ -9,11 +9,11 @@ namespace BlazorRunner.Runner.Helpers
 {
     public static class Attributes
     {
-        public static bool TryAssignProperties<T, U>(object instance) where T : System.Attribute
+        public static bool TryAssignProperties<T>(MemberInfo attributeInfo, object instance) where T : System.Attribute
         {
             var instanceType = instance.GetType();
 
-            var att = instanceType.GetCustomAttribute<T>();
+            var att = attributeInfo.GetCustomAttribute<T>();
 
             if (att is null)
             {
@@ -40,7 +40,7 @@ namespace BlazorRunner.Runner.Helpers
                     if (TypeValidator.TryGetCompatibility(value, prop.PropertyType, out var compatibility))
                     {
                         // if its not implicit we have to cast
-                        if (compatibility is not CastingCompatibility.Implicit or CastingCompatibility.SameType)
+                        if (compatibility is not CastingCompatibility.Implicit and not CastingCompatibility.SameType)
                         {
                             // cast then set the value on the instance
                             object castedValue = TypeValidator.Cast(value, prop.PropertyType, compatibility);
