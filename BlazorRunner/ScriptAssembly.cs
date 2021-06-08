@@ -123,6 +123,18 @@ namespace BlazorRunner.Runner
             }
         }
 
+        public IBasicInfo GetFlavorText(Guid Key)
+        {
+            object result = GetUnknownObjectByKey(Key);
+
+            if (result is IBasicInfo info)
+            {
+                return info;
+            }
+
+            return null;
+        }
+
         private void AddSetting(IScriptSetting setting)
         {
             if (setting != null)

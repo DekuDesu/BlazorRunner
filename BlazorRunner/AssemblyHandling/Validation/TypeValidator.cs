@@ -26,6 +26,21 @@ namespace BlazorRunner.Runner
             0.1m
         };
 
+        public static readonly object[] DefaultMaximums = {
+            sbyte.MaxValue,
+            byte.MaxValue,
+            short.MaxValue,
+            ushort.MaxValue,
+            int.MaxValue,
+            uint.MaxValue,
+            long.MaxValue,
+            ulong.MaxValue,
+            float.MaxValue,
+            double.MaxValue,
+            decimal.MaxValue
+        };
+
+
         public const TypeCode PrimitiveTypes = TypeCode.SByte | TypeCode.Byte | TypeCode.Int16 | TypeCode.UInt16 | TypeCode.Int32 | TypeCode.UInt32 | TypeCode.Int64 | TypeCode.UInt64 | TypeCode.Single | TypeCode.Double | TypeCode.Decimal;
 
         public const int ImplicitSbyteConversions = (int)(BinaryTypeCode.Int16 | BinaryTypeCode.Int32 | BinaryTypeCode.Int64 | BinaryTypeCode.Single | BinaryTypeCode.Double | BinaryTypeCode.Decimal | BinaryTypeCode.SByte);

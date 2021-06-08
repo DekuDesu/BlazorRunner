@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApplicationTopLevel"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorRunner.Server", "BlazorRunner.Server\BlazorRunner.Server.csproj", "{4F68479E-1478-4093-BBC3-11DD847E1016}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorRunnerBench", "BlazorRunnerBench\BlazorRunnerBench.csproj", "{AE93B9D6-AAFF-46D3-88F4-778AF50168A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorRunnerBench", "BlazorRunnerBench\BlazorRunnerBench.csproj", "{AE93B9D6-AAFF-46D3-88F4-778AF50168A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

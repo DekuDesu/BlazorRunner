@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using BlazorRunner.Attributes;
 namespace ServerTestAssembly
 {
@@ -20,7 +21,7 @@ namespace ServerTestAssembly
         public ushort Chamois { get; set; }
 
         [Setting(Group = "Large Integers")]
-        public int Cat { get; set; }
+        public int Cat { get; set; } = 10_000;
 
         [Setting(Group = "Large Integers")]
         public uint Porpoise { get; set; }
@@ -32,18 +33,21 @@ namespace ServerTestAssembly
         public ulong Jackal { get; set; }
 
         [Setting(Group = "Floating Points")]
+        [Range(Min = 16)]
         public float Colt { get; set; }
 
         [Setting(Group = "Floating Points")]
         public double Gopher { get; set; }
 
         [Setting(Group = "Floating Points")]
-        public decimal Parakeet { get; set; }
+        [Range(Max = 20)]
+        public decimal Parakeet { get; set; } = 17.9m;
 
         [Setting(Group = "Bools")]
         public bool Porcupine { get; set; }
 
         [Setting(Group = "Enums")]
+        [Description("This is a pupper")]
         public TypeCode Puppy { get; set; }
 
         [Setting(Group = "Guids")]
@@ -76,6 +80,16 @@ namespace ServerTestAssembly
         public void ExtraStuff()
         {
             Console.WriteLine($"{Crocodile}");
+        }
+
+        [MiniScript]
+        [Description("Uses " + nameof(Cat) + " For length of sleep")]
+        public int WaitAround()
+        {
+            Console.WriteLine("Started Cat");
+            Thread.Sleep(Cat);
+            Console.WriteLine("Ended Cat");
+            return Cat;
         }
 
         public void HiddenStuff()

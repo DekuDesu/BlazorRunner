@@ -1,0 +1,40 @@
+﻿@implements IDisposable
+
+<div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="consoleScrolling" aria-labelledby="consoleScrollingLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="consoleScrollingLabel">
+            Console <span class="oi oi-reload" title="Refresh" @onclick="Refresh"></span>
+        </h5>
+
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="card text-center h-100">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <button class="nav-link @(SelectedTab == 0 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  0">All</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link @(SelectedTab == 1 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  1">Info</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link @(SelectedTab == 2 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  2">Warnings</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link @(SelectedTab == 3 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  3">Errors</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Special title treatment</h5>
+                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                <a href="#" class="btn btn-primary">Go somewhere</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+}

@@ -21,6 +21,11 @@ namespace BlazorRunner.Runner
 
         public object BackingInstance { get; init; }
 
+        public Action ToAction()
+        {
+            return () => Invoke();
+        }
+
         public object Invoke()
         {
             return BackingMethod?.Invoke(BackingInstance, DefaultParameters);

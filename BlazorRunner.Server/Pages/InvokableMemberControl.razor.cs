@@ -18,9 +18,9 @@ namespace BlazorRunner.Server.Pages
         {
             Running = true;
 
-            Member?.Invoke();
+            TaskDirector.QueueTask(Member.ToAction(), Member.Id);
 
-            await Task.Delay(500);
+            await Task.Delay(250);
 
             Running = false;
         }

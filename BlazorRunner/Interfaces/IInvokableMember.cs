@@ -12,5 +12,6 @@ namespace BlazorRunner.Runner
         object Invoke();
 
         object Invoke(params object[] parameters);
+        Action ToAction();
     }
 }

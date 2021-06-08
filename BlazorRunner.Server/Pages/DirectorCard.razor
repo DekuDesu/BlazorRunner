@@ -1,0 +1,33 @@
+﻿@implements IDisposable
+
+<div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasScrollingLabel">
+            Script Queue <span class="oi oi-reload" title="Refresh" @onclick="Refresh"></span>
+        </h5>
+
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="d-flex flex-row justify-content-around w-100">
+        <div class="d-flex">
+            <div class="h5">Running <span class="badge bg-success">@TaskDirector.RunningTasks</span></div>
+        </div>
+        <div class="d-flex">
+            <div class="h5">Queued <span class="badge bg-primary">@TaskDirector.Queue.Count</span></div>
+        </div>
+    </div>
+    <div class="offcanvas-body">
+        @foreach (DirectedTask item in TaskDirector.Running)
+        {
+            <TaskCard Task=@item Status=@item.Status Time=@item.Timer.ElapsedMilliseconds></TaskCard>
+        }
+        @foreach (DirectedTask item in TaskDirector.Queue)
+        {
+            <TaskCard Task=@item Status=DirectedTaskStatus.Queued Time=0></TaskCard>
+        }
+    </div>
+</div>
+
+@code {
+
+}

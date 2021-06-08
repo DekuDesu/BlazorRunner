@@ -1,0 +1,33 @@
+﻿<div class="card text-dark bg-light w-100 my-2" style="">
+    <div class="card-header d-flex flex-row justify-content-between w-100">
+        <div class="d-inline-flex">
+            <div>
+                @Name
+                <StatusBadge DirectedStatus=@Status TraditionTaskStatus="false"></StatusBadge>
+                <span class="badge bg-secondary">@($"{Time / 1000}s")</span>
+                <div class="text-muted">
+                    @Description
+                </div>
+                @if (showQuestion)
+                {
+                    <div class="text-primary text-center">
+                        Are you sure you want to end <b>@Name</b>?
+                    </div>
+                    <div>
+                        <div class="d-flex flex-row justify-content-lg-center">
+                            <button type="button" class="btn btn-warning w-50 mx-1" @onclick="EndTask">Yes</button>
+                            <button type="button" class="btn btn-primary w-50 mx-1" @onclick="HideEndTask">No</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="d-flex">
+            <button type="button" class="btn-close text-reset" @onclick="ShowEndTask"></button>
+        </div>
+    </div>
+</div>
+
+@code {
+
+}

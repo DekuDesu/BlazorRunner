@@ -1,0 +1,57 @@
+﻿@if (TraditionTaskStatus)
+{
+    switch (Status)
+    {
+        case TaskStatus.Created:
+            <span class="badge bg-secondary">Created</span>
+            break;
+        case TaskStatus.WaitingForActivation:
+            <span class="badge bg-secondary">Waiting For Activation</span>
+            break;
+        case TaskStatus.WaitingToRun:
+            <span class="badge bg-secondary">Waiting To Run</span>
+            break;
+        case TaskStatus.Running:
+            <span class="badge bg-primary">Running</span>
+            break;
+        case TaskStatus.WaitingForChildrenToComplete:
+            <span class="badge bg-primary">Waiting For Children To Complete</span>
+            break;
+        case TaskStatus.RanToCompletion:
+            <span class="badge bg-success">Ran To Completion</span>
+            break;
+        case TaskStatus.Canceled:
+            <span class="badge bg-warning text-dark">Canceled</span>
+            break;
+        case TaskStatus.Faulted:
+            <span class="badge bg-danger">Faulted</span>
+            break;
+    }
+}
+else
+{
+    switch (DirectedStatus)
+    {
+        case DirectedTaskStatus.none:
+            <span class="badge bg-dark">None</span>
+            break;
+        case DirectedTaskStatus.Queued:
+            <span class="badge bg-secondary">Queued</span>
+            break;
+        case DirectedTaskStatus.Running:
+            <span class="badge bg-primary">Running</span>
+            break;
+        case DirectedTaskStatus.Faulted:
+            <span class="badge bg-danger">Faulted</span>
+            break;
+        case DirectedTaskStatus.Cancelled:
+            <span class="badge bg-warning text-dark">Cancelled</span>
+            break;
+        case DirectedTaskStatus.Finished:
+            <span class="badge bg-success">Finished</span>
+            break;
+    }
+}
+@code {
+
+}

@@ -43,7 +43,7 @@ namespace BlazorRunner.Runner
         int Length { get; }
 
         void AddScript(IScript script);
-
+        IBasicInfo GetFlavorText(Guid Key);
         object GetSetting(Guid SettingId);
 
         object InvokeMember(Guid ScriptId);

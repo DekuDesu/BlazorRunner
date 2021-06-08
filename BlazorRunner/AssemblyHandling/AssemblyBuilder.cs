@@ -221,7 +221,14 @@ namespace BlazorRunner.Runner
                     }
                     else
                     {
-                        throw Helpers.Exceptions.IncompatibleTypeUsedWithRange(RangeAttribute.Min.GetType(), EligibleType);
+                        if (RangeAttribute.Min is null && EligibleType.IsValueType)
+                        {
+                            RangeAttribute.Min = Activator.CreateInstance(EligibleType);
+                        }
+                        else
+                        {
+                            throw Helpers.Exceptions.IncompatibleTypeUsedWithRange(RangeAttribute.Min.GetType(), EligibleType);
+                        }
                     }
 
                     if (TypeValidator.TryGetCompatibility(RangeAttribute.Max, EligibleType, out compatibility))
@@ -233,7 +240,23 @@ namespace BlazorRunner.Runner
                     }
                     else
                     {
-                        throw Helpers.Exceptions.IncompatibleTypeUsedWithRange(RangeAttribute.Min.GetType(), EligibleType);
+                        if (RangeAttribute.Max is null && EligibleType.IsValueType)
+                        {
+                            var max = TypeValidator.DefaultMaximums.Where(x => x.GetType() == EligibleType).FirstOrDefault();
+
+                            if (max != null)
+                            {
+                                RangeAttribute.Max = max;
+                            }
+                            else
+                            {
+                                RangeAttribute.Max = Activator.CreateInstance(EligibleType);
+                            }
+                        }
+                        else
+                        {
+                            throw Helpers.Exceptions.IncompatibleTypeUsedWithRange(RangeAttribute.Min.GetType(), EligibleType);
+                        }
                     }
 
                     if (TypeValidator.TryGetCompatibility(RangeAttribute.StepAmount, EligibleType, out compatibility))

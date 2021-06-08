@@ -9,11 +9,11 @@ namespace BlazorRunner.Runner.Helpers
 {
     public static class Attributes
     {
-        public static bool TryAssignProperties<T>(MemberInfo attributeInfo, object instance) where T : System.Attribute
+        public static bool TryAssignProperties<T>(MemberInfo memberWithAttribute, object instance) where T : System.Attribute
         {
             var instanceType = instance.GetType();
 
-            var att = attributeInfo.GetCustomAttribute<T>();
+            var att = memberWithAttribute.GetCustomAttribute<T>();
 
             if (att is null)
             {
