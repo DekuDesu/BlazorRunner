@@ -25,11 +25,16 @@ namespace BlazorRunner.Runner
 
         public static bool ExecutingTasks { get; private set; } = false;
 
+        static TaskDirector()
+        {
+            QueuedTasks.OnPush += (x, y) => Task.Run(ExecuteQueuedTasks, GlobalToken.Token);
+        }
+
         public static async Task ExecuteQueuedTasks()
         {
             ExecutingTasks = true;
 
-            while (true)
+            while (QueuedTasks.IsEmpty is false)
             {
                 // make sure we can exit gracefully
                 if (GlobalToken.IsCancellationRequested)
@@ -38,18 +43,14 @@ namespace BlazorRunner.Runner
                     return;
                 }
 
-                // only bother if there are things to execute
-                if (QueuedTasks.IsEmpty is false)
+                // deque a task
+                if (QueuedTasks.TryDequeue(out DirectedTask task))
                 {
-                    // deque a task
-                    if (QueuedTasks.TryDequeue(out DirectedTask task))
-                    {
-                        // execute it
-                        await StartTask(task);
-                    }
+                    // execute it
+                    await StartTask(task);
                 }
 
-                await Task.Delay(1);
+                await Task.Delay(10);
             }
         }
 
