@@ -1,4 +1,6 @@
 ﻿using BlazorRunner.Attributes;
+using BlazorRunner.Runner.RuntimeHandling;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,11 @@ namespace BlazorRunner.Runner
 {
     public class AssemblyBuilder : IAssemblyBuilder
     {
+        /// <summary>
+        /// Logger that is injected when a script contains [Logger] attribute on a <see cref="ILogger"/> field or property
+        /// </summary>
+        public static ILogger DefaultLogger { get; set; } = new UXLogger();
+
         public static readonly object[] DefaultSliderMininums = {
             sbyte.MinValue,
             (byte)0,
@@ -66,7 +73,12 @@ namespace BlazorRunner.Runner
             foreach (var item in scripts)
             {
                 // create a new script object
-                IScript newScript = Factory.CreateScript(CreateScriptInstance(item));
+                object ScriptInstance = CreateScriptInstance(item);
+
+                // make sure the instance can interact with the UX
+                InjectILogger(ScriptInstance);
+
+                IScript newScript = Factory.CreateScript(ScriptInstance);
 
                 // attach the flavor text like the name and description
                 AssignFlavorText(newScript, item);
@@ -81,16 +93,16 @@ namespace BlazorRunner.Runner
                 AssignInvokableMember<CleanupAttribute>(newScript, item, (script, obj) => script.Cleanup = obj);
 
                 // assign the miniscripts
-                newScript.MiniScripts = GetMethodsWithAttribute<MiniScriptAttribute>(item, newScript.BackingInstance);
+                newScript.MiniScripts = GetMethodsWithAttribute<MiniScriptAttribute>(item, ScriptInstance);
 
                 // group the scripts
                 newScript.ScriptGroups = GroupMiniScripts(newScript.MiniScripts);
 
                 // get all of the settings for the script
-                (newScript.Settings, newScript.SettingGroups) = GetScriptSettings(item, newScript.BackingInstance);
+                (newScript.Settings, newScript.SettingGroups) = GetScriptSettings(item, ScriptInstance);
 
                 // make sure to add the object as a managed resource if the script implements IDisposable
-                newScript.ManagedResource = CheckForManagedScript(item, newScript.BackingInstance);
+                newScript.ManagedResource = CheckForManagedScript(item, ScriptInstance);
 
                 newScriptAssembly.AddScript(newScript);
             }
@@ -109,6 +121,46 @@ namespace BlazorRunner.Runner
             }
 
             return newScriptAssembly;
+        }
+
+        private void InjectILogger(object instance)
+        {
+            Type instanceType = instance.GetType();
+
+            var fields = instanceType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+
+            var loggerFields = fields.Where(x => x.FieldType == typeof(ILogger));
+
+            foreach (var item in loggerFields)
+            {
+                if (TryGetAttribute<LoggerAttribute>(item, out _))
+                {
+                    item.SetValue(instance, DefaultLogger);
+
+                    return;
+                }
+            }
+
+            var properties = instanceType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+
+            var loggerProperties = properties.Where(x => x.PropertyType == typeof(ILogger));
+
+            foreach (var item in loggerProperties)
+            {
+                if (TryGetAttribute<LoggerAttribute>(item, out _))
+                {
+                    item.SetValue(instance, DefaultLogger);
+
+                    return;
+                }
+            }
+        }
+
+        private bool TryGetAttribute<T>(MemberInfo type, out T attribute) where T : System.Attribute
+        {
+            attribute = type.GetCustomAttribute<T>();
+
+            return attribute != null;
         }
 
         private IScript GenerateScriptFromConsoleApplication(Assembly assembly)

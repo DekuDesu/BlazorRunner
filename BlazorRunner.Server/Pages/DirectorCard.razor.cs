@@ -10,13 +10,17 @@ namespace BlazorRunner.Server.Pages
 {
     public partial class DirectorCard : ComponentBase, IDisposable
     {
+        private int SelectedTab = 0;
+
         private volatile Timer RefreshTimer = new(500);
-        private object TimerLock = new();
+        private readonly object TimerLock = new();
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
-                TaskDirector.OnTaskAny += UpdateAlt;
+                TaskDirector.QueuedTasks.OnAny += UpdateStateHasChanged;
+                TaskDirector.RunningTasks.OnAny += UpdateStateHasChanged;
 
                 lock (TimerLock)
                 {
@@ -28,7 +32,7 @@ namespace BlazorRunner.Server.Pages
             await base.OnAfterRenderAsync(firstRender);
         }
 
-        void UpdateAlt(Guid id)
+        void UpdateStateHasChanged<T>(object caller, T obj)
         {
             InvokeAsync(() => StateHasChanged()).Wait();
         }

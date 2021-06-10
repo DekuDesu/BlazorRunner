@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BlazorRunner.Runner.RuntimeHandling;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,27 +11,17 @@ namespace BlazorRunner.Runner
 {
     public static class TaskDirector
     {
-        public static readonly ConcurrentQueue<DirectedTask> Queue = new ConcurrentQueue<DirectedTask>();
+        public static readonly ConcurrentCallbackQueue<DirectedTask> QueuedTasks = new();
 
-        public static IReadOnlyList<DirectedTask> Running => _Running;
-
-        private static readonly List<DirectedTask> _Running = new();
-
-        private static readonly IDictionary<DirectedTask, CancellationTokenSource> TokenSources = new ConcurrentDictionary<DirectedTask, CancellationTokenSource>();
+        public static readonly ConcurrentCallbackDictionary<Guid, DirectedTask> RunningTasks = new();
 
         private static CancellationTokenSource GlobalToken = new();
 
         public static readonly SemaphoreSlim TaskLimiter = new(Environment.ProcessorCount, Environment.ProcessorCount);
 
-        public static int RunningTasks => MaxRunningTasks - TaskLimiter.CurrentCount;
+        public static int RunningCount => MaxRunningTasks - TaskLimiter.CurrentCount;
 
         public static int MaxRunningTasks { get; set; } = Environment.ProcessorCount;
-
-        public static event Action<Guid, TaskResult> OnTaskResult;
-        public static event Action<Guid> OnTaskQueued;
-        public static event Action<Guid> OnTaskStarted;
-        public static event Action<Guid> OnTaskFinished;
-        public static event Action<Guid> OnTaskAny;
 
         public static bool ExecutingTasks { get; private set; } = false;
 
@@ -48,10 +39,10 @@ namespace BlazorRunner.Runner
                 }
 
                 // only bother if there are things to execute
-                if (Queue.IsEmpty is false)
+                if (QueuedTasks.IsEmpty is false)
                 {
                     // deque a task
-                    if (Queue.TryDequeue(out DirectedTask task))
+                    if (QueuedTasks.TryDequeue(out DirectedTask task))
                     {
                         // execute it
                         await StartTask(task);
@@ -88,71 +79,28 @@ namespace BlazorRunner.Runner
 
         private static DirectedTask QueueWorker(Action action, Guid? Id)
         {
-            // create a token so we can cancel the task at any time
-            CancellationTokenSource newSource = new();
-
             var id = Id ?? Guid.NewGuid();
 
-            var newTask = new DirectedTask(action, TaskLimiter, newSource.Token) { Id = id };
-
-            // register a callback so we remove it when it gets cancelled
-            newSource.Token.Register(() => TokenSources.Remove(newTask));
-
-            // add it to the dict
-            TokenSources.TryAdd(newTask, newSource);
+            var newTask = new DirectedTask(action, TaskLimiter, new()) { BackingId = id };
 
             // make sure we register call backs for the task so we can keep track of it
             newTask.OnFinal += (x, y) => RemoveRunningTask((DirectedTask)x);
-            newTask.OnAny += (caller, args) => OnTaskResult?.Invoke(id, args);
             newTask.OnStart += (x, y) => AddRunningTask(newTask);
 
             // queue it for execution
-            Queue.Enqueue(newTask);
-
-            // notify subscribers we've changed collections
-            OnTaskQueued?.Invoke(newTask.Id);
-            OnTaskAny?.Invoke(newTask.Id);
+            QueuedTasks.Enqueue(newTask);
 
             return newTask;
         }
 
-        public static bool TryCancelTask(DirectedTask task)
-        {
-            if (TokenSources.ContainsKey(task))
-            {
-                if (TokenSources.TryGetValue(task, out var source))
-                {
-                    source?.Cancel();
-
-                    RemoveRunningTask(task);
-
-                    task.NotifyExternalCancelled();
-
-                    return true;
-                }
-            }
-            return false;
-        }
-
         private static void AddRunningTask(DirectedTask task)
         {
-            lock (_Running)
-            {
-                _Running.Add(task);
-                OnTaskStarted?.Invoke(task.Id);
-                OnTaskAny?.Invoke(task.Id);
-            }
+            RunningTasks.Add(task.Id, task);
         }
 
         private static void RemoveRunningTask(DirectedTask task)
         {
-            lock (_Running)
-            {
-                _Running.Remove(task);
-            }
-
-            OnTaskFinished?.Invoke(task.Id);
-            OnTaskAny?.Invoke(task.Id);
+            RunningTasks?.Remove(task.Id);
         }
 
         public static void Dispose()
@@ -163,14 +111,7 @@ namespace BlazorRunner.Runner
 
             GlobalToken = new CancellationTokenSource();
 
-            foreach (var item in TokenSources)
-            {
-                item.Value?.Cancel();
-            }
-
-            TokenSources.Clear();
-
-            ((ConcurrentQueue<DirectedTask>)Queue).Clear();
+            QueuedTasks.Clear();
 
         }
     }

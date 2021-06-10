@@ -41,7 +41,7 @@ namespace BlazorRunner.Server.Pages
 
         async Task EndTask()
         {
-            TaskDirector.TryCancelTask(Task);
+            Task?.Cancel();
             await System.Threading.Tasks.Task.Delay(1);
         }
 
@@ -51,7 +51,9 @@ namespace BlazorRunner.Server.Pages
 
             if (Task != null)
             {
-                RetrievedInfo = Index.SelectedAssembly.GetFlavorText(Task.Id);
+#pragma warning disable CS0234
+                RetrievedInfo = BlazorRunner.Server.Pages.Index.SelectedAssembly.GetFlavorText(Task.BackingId);
+#pragma warning restore CS0234
             }
         }
     }

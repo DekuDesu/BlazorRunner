@@ -14,6 +14,9 @@ namespace BlazorRunner.Runner
     /// </summary>
     public abstract class RegisteredObject
     {
+        /// <summary>
+        /// The registered Id of this object. Will always be unique, if not an warning is thrown.
+        /// </summary>
         public virtual Guid Id { get; } = GuidRegistrar.Create();
     }
 }

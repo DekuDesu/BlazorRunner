@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BlazorRunner.Runner.AssemblyHandling;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -32,6 +33,26 @@ namespace BlazorRunner.Runner
         public static IScriptSetting CreateScriptSetting(FieldInfo fieldInfo, object BackingInstance)
         {
             return new ScriptSetting() { BackingField = fieldInfo, BackingInstance = BackingInstance };
+        }
+
+        public static IAssemblyBuilder CreateAssemblyBuilder()
+        {
+            return new AssemblyBuilder();
+        }
+
+        public static IAssemblyImporter CreateImporter()
+        {
+            return new ByteAssemblyImporter();
+        }
+
+        public static IAssemblyImporter CreateImporter(params string[] Paths)
+        {
+            return new AssemblyReaderImporter(Paths);
+        }
+
+        public static IAssemblyImporter CreateImporter(params byte[][] Bytes)
+        {
+            return new ByteAssemblyImporter(Bytes);
         }
     }
 }

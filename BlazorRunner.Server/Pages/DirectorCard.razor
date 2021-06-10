@@ -8,23 +8,43 @@
 
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-    <div class="d-flex flex-row justify-content-around w-100">
-        <div class="d-flex">
-            <div class="h5">Running <span class="badge bg-success">@TaskDirector.RunningTasks</span></div>
-        </div>
-        <div class="d-flex">
-            <div class="h5">Queued <span class="badge bg-primary">@TaskDirector.Queue.Count</span></div>
-        </div>
-    </div>
     <div class="offcanvas-body">
-        @foreach (DirectedTask item in TaskDirector.Running)
-        {
-            <TaskCard Task=@item Status=@item.Status Time=@item.Timer.ElapsedMilliseconds></TaskCard>
-        }
-        @foreach (DirectedTask item in TaskDirector.Queue)
-        {
-            <TaskCard Task=@item Status=DirectedTaskStatus.Queued Time=0></TaskCard>
-        }
+        <div class="card text-center h-100">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <button class="nav-link @(SelectedTab == 0 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  0">Running <span class="badge bg-success">@TaskDirector.RunningTasks.Count</span></button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link @(SelectedTab == 1 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  1">Queued <span class="badge bg-primary">@TaskDirector.QueuedTasks.Count</span></button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link @(SelectedTab == 2 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  2"><span class="oi oi-cog"></span></button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                @switch (SelectedTab)
+                {
+                    case 0:
+                        foreach (var item in TaskDirector.RunningTasks)
+                        {
+                            <TaskCard Task=item.Value Status=item.Value.Status Time=item.Value.Timer.ElapsedMilliseconds></TaskCard>
+                        }
+                        break;
+                    case 1:
+                        foreach (var item in TaskDirector.QueuedTasks)
+                        {
+                            <TaskCard Task=item Status=DirectedTaskStatus.Queued Time=0></TaskCard>
+                        }
+                        break;
+                    case 2:
+                        <h5>Max Running Tasks</h5>
+                        <PrimitiveSlider T="int" DefaultValue="Environment.ProcessorCount" Min="1" Max=@Environment.ProcessorCount StepAmount="1" EnableBitShift="false" EnableIncrement="true" EnableSlider="true" EnableSliderConstraints="true"></PrimitiveSlider>
+                        break;
+                }
+            </div>
+        </div>
     </div>
 </div>
 

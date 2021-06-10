@@ -6,6 +6,7 @@ using BlazorRunner.Attributes;
 using System.Linq;
 using System.Threading.Tasks;
 using ConsoleApplication;
+using Microsoft.Extensions.Logging;
 
 namespace BlazorRunner.Tests
 {
@@ -202,11 +203,23 @@ namespace BlazorRunner.Tests
             Assert.Equal(100d, slider.Max);
             Assert.Equal(0.1d, slider.StepSize);
         }
+
+        [Fact]
+        public void ILoggerInjectionWorks()
+        {
+            // load an assembly
+            Assembly testAssembly = typeof(AssemblyParserTest.MyExampleScript).Assembly;
+
+            IScriptAssembly parsedAssembly = Parser.Parse(testAssembly);
+
+            _ = parsedAssembly;
+        }
     }
 }
 
 namespace AssemblyParserTest
 {
+
     [Script]
     [Name("Test Script")]
     [Description("My script description")]
@@ -230,6 +243,7 @@ namespace AssemblyParserTest
 
         [Setting]
 #pragma warning disable CS0414
+#pragma warning disable CS0169
         bool SetupRan = false;
 
         [Setting]
@@ -240,7 +254,14 @@ namespace AssemblyParserTest
 
         [Setting]
         bool DisposeRan = false;
+
+        [Logger]
+        ILogger logger;
+
 #pragma warning restore CS0414
+#pragma warning restore CS0169
+
+
 
         [Setup]
         public void Before()
@@ -290,5 +311,11 @@ namespace AssemblyParserTest
     [Script]
     public class EmptyScript
     {
+    }
+    [Script]
+    public class LoggerPropertyTest
+    {
+        [Logger]
+        ILogger logger { get; set; }
     }
 }

@@ -8,6 +8,6 @@ namespace BlazorRunner.Runner
         LoadAssemblyResult Status { get; }
 
         Task<Assembly> LoadAsync();
-        Assembly TryLoad();
+        Assembly Load();
     }
 }

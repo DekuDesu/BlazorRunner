@@ -62,6 +62,8 @@ namespace BlazorRunner.Server.Pages
                 OnChange?.Invoke(value);
 
                 _InputText = value.ToString();
+
+                _SliderValue = value.ToString();
             }
         }
 
@@ -85,6 +87,7 @@ namespace BlazorRunner.Server.Pages
                 if (BlazorRunner.Runner.TypeValidator.TryGetCompatibility(value, typeof(T), out var compatibility))
                 {
                     Value = (T)Runner.TypeValidator.Cast(value, typeof(T), compatibility);
+                    _SliderValue = Value.ToString();
                 }
             }
         }
@@ -107,14 +110,12 @@ namespace BlazorRunner.Server.Pages
                         if (BlazorRunner.Runner.TypeValidator.TryGetCompatibility(tmp, typeof(T), out compatibility))
                         {
                             DynamicValue = (T)Runner.TypeValidator.Cast(tmp, typeof(T), compatibility);
-                            _SliderValue = value;
                         }
                     }
                 }
                 else if (BlazorRunner.Runner.TypeValidator.TryGetCompatibility(value, typeof(T), out var compatibility))
                 {
                     DynamicValue = (T)Runner.TypeValidator.Cast(value, typeof(T), compatibility);
-                    _SliderValue = value;
                 }
             }
         }

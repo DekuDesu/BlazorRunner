@@ -13,7 +13,7 @@ namespace BlazorRunner.Runner
 
         public abstract Task<Assembly> LoadAsync();
 
-        public abstract Assembly TryLoad();
+        public abstract Assembly Load();
 
         public virtual Assembly ParseBytes(byte[] bytes)
         {

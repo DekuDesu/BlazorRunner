@@ -1,9 +1,6 @@
 ﻿@page "/"
 @implements IDisposable
 
-@inject IAssemblyBuilder builder
-
-
 <div class="flex">
     @for (int i = 0; i < (ImportedTestAssembly?.Length ?? 0); i++)
     {
@@ -22,12 +19,16 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        ImportedTestAssembly = builder.Parse(typeof(ServerTestAssembly.MyExampleScript).Assembly);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            await AssemblyDirector.LoadStartupAssemblies();
+        }
 
         if (TaskDirector.ExecutingTasks is false)
         {

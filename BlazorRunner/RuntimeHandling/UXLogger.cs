@@ -16,6 +16,11 @@ namespace BlazorRunner.Runner.RuntimeHandling
 
         public string Path { get; init; } = $"BlazorRunnerLog_{Guid.NewGuid()}.txt";
 
+        public IReadOnlyCollection<string> Logs => _Logs;
+
+        internal List<string> _Logs = new();
+        private readonly object LogLock = new();
+
         public UXLogger()
         {
 
@@ -38,30 +43,19 @@ namespace BlazorRunner.Runner.RuntimeHandling
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            throw new NotImplementedException();
-        }
+            string log = FormatForLogFile(logLevel, eventId, state, exception, formatter);
 
-        private string FormatForLogFile<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-        {
-            return $"{logLevel},{}{}{}";
-        }
-
-        private ref struct LogObject<TState>
-        {
-            public LogLevel logLevel { get; set; }
-
-            public EventId eventId { get; set; }
-
-            public TState state { get; set; }
-
-            public Exception exception { get; set; }
-
-            public string FormattedString { get; set; }
-
-            public override string ToString()
+            lock (LogLock)
             {
-                return base.ToString();
+                _Logs.Add(log);
             }
+
+            Console.WriteLine($"Logged {log}");
+        }
+
+        private static string FormatForLogFile<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            return $"{logLevel},{eventId},{state},{exception},{formatter(state, exception)}";
         }
     }
 }

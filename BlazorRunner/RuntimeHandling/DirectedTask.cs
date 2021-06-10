@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BlazorRunner.Runner
 {
-    public class DirectedTask
+    public class DirectedTask : RegisteredObject, IEquatable<DirectedTask>, IDisposable
     {
         public readonly Task BackingTask;
 
@@ -18,11 +18,18 @@ namespace BlazorRunner.Runner
 
         private readonly SemaphoreSlim Limiter;
 
-        private object LimiterLock = new();
+        private readonly CancellationTokenSource TokenSource;
+
+        private readonly object LimiterLock = new();
 
         private bool ReleasedLimiter = false;
 
-        public Guid Id { get; init; }
+        public bool Cancelled { get; private set; } = false;
+
+        public bool Disposed { get; private set; } = false;
+
+        public Guid BackingId { get; set; }
+
 
         public Exception Fault { get; private set; } = null;
 
@@ -36,13 +43,15 @@ namespace BlazorRunner.Runner
         public event Action<object, TaskResult> OnFinal;
 
 
-        public DirectedTask(Action Work, SemaphoreSlim Limiter, CancellationToken Token)
+        public DirectedTask(Action Work, SemaphoreSlim Limiter, CancellationTokenSource TokenSource)
         {
             this.BackingAction = Work;
 
             this.Limiter = Limiter;
 
-            this.BackingTask = new Task(Worker, Token);
+            this.TokenSource = TokenSource;
+
+            this.BackingTask = new Task(Worker, TokenSource.Token);
         }
 
         private void Worker()
@@ -91,8 +100,16 @@ namespace BlazorRunner.Runner
             }
         }
 
-        public void NotifyExternalCancelled()
+        public void Cancel()
         {
+            // make sure we only cancel once
+            if (Cancelled) return;
+            Cancelled = true;
+
+            // force the running task to stop
+            TokenSource?.Cancel();
+
+            // stop the timer so we're not needlessly running it
             Timer?.Stop();
 
             // release sempahore so other queued tasks can continue work
@@ -106,6 +123,7 @@ namespace BlazorRunner.Runner
             // set our status so it updates in UX
             Status = DirectedTaskStatus.Cancelled;
 
+            // invoke callbacks
             OnCancel?.Invoke(this, result);
             OnAny?.Invoke(this, result);
             OnFinal?.Invoke(this, result);
@@ -121,6 +139,36 @@ namespace BlazorRunner.Runner
                     ReleasedLimiter = true;
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            // make sure we only dispose once
+            if (Disposed)
+            {
+                throw new ObjectDisposedException(nameof(DirectedTask));
+            }
+
+            Disposed = true;
+
+            Cancel();
+
+            TokenSource?.Dispose();
+        }
+
+        public bool Equals(DirectedTask other)
+        {
+            return Id == other.Id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is DirectedTask task && task.Id == Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
         }
     }
 }

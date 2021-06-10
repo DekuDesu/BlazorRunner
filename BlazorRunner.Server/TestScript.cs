@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
 using BlazorRunner.Attributes;
+using Microsoft.Extensions.Logging;
+
 namespace ServerTestAssembly
 {
     [Script]
@@ -56,22 +58,25 @@ namespace ServerTestAssembly
         [Setting(Group = "Strings")]
         public string Crocodile { get; set; }
 
+        [Logger]
+        ILogger Logger { get; set; }
+
         [Setup]
         public void Before()
         {
-
+            Logger.LogInformation("{Method} ran", nameof(Before));
         }
 
         [EntryPoint]
         public void Main()
         {
-
+            Logger.LogInformation("{Method} ran", nameof(Main));
         }
 
         [Cleanup]
         public void After()
         {
-
+            Logger.LogInformation("{Method} ran", nameof(After));
         }
 
         [MiniScript(Group = "Mini Scripts")]
@@ -79,6 +84,7 @@ namespace ServerTestAssembly
         [Description("Displays a different message than hello world")]
         public void ExtraStuff()
         {
+            Logger.LogInformation("Wrote {Length} to console", Crocodile);
             Console.WriteLine($"{Crocodile}");
         }
 
@@ -87,7 +93,9 @@ namespace ServerTestAssembly
         public int WaitAround()
         {
             Console.WriteLine("Started Cat");
+            Logger.LogInformation("Started Waiting for {Milliseconds}", Cat);
             Thread.Sleep(Cat);
+            Logger.LogInformation("Finished Waiting");
             Console.WriteLine("Ended Cat");
             return Cat;
         }

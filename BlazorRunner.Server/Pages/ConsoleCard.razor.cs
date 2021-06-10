@@ -18,7 +18,7 @@ namespace BlazorRunner.Server.Pages
         {
             if (firstRender)
             {
-                TaskDirector.OnTaskAny += UpdateAlt;
+                TaskDirector.QueuedTasks.OnAny += UpdateAlt;
 
                 lock (TimerLock)
                 {
@@ -30,7 +30,7 @@ namespace BlazorRunner.Server.Pages
             await base.OnAfterRenderAsync(firstRender);
         }
 
-        void UpdateAlt(Guid id)
+        void UpdateAlt(object caller, DirectedTask task)
         {
             InvokeAsync(() => StateHasChanged()).Wait();
         }

@@ -6,6 +6,7 @@ namespace ConsoleApplication
     {
         static int Main()
         {
+            Console.WriteLine("ConsoleApplication");
             return 14;
         }
     }
