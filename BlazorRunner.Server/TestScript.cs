@@ -100,6 +100,14 @@ namespace ServerTestAssembly
             return Cat;
         }
 
+        [MiniScript]
+        [Description("Will display a generic exception, the message will be the property Crocodile")]
+        public void ThrowsException()
+        {
+            Console.Error.WriteLine("Throwing Error");
+            throw new Exception(Crocodile);
+        }
+
         public void HiddenStuff()
         {
             // should not be found and displayed

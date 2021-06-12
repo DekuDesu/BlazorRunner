@@ -44,7 +44,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
             }
             catch (Exception e)
             {
-                Console.Write(e);
+                Console.Error.Write(e);
                 return false;
             }
 

@@ -87,7 +87,6 @@ namespace BlazorRunner.Server.Pages
                 if (BlazorRunner.Runner.TypeValidator.TryGetCompatibility(value, typeof(T), out var compatibility))
                 {
                     Value = (T)Runner.TypeValidator.Cast(value, typeof(T), compatibility);
-                    _SliderValue = Value.ToString();
                 }
             }
         }

@@ -1,5 +1,7 @@
 ﻿using BlazorRunner.Runner;
+using BlazorRunner.Runner.RuntimeHandling;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +16,20 @@ namespace BlazorRunner.Server.Pages
 
         private volatile Timer RefreshTimer = new(500);
         private object TimerLock = new();
+
+        private IReadOnlyCollection<LogItem> All => LoggerDirector.GlobalLogger.Logs;
+
+        private IEnumerable<LogItem> Info => LoggerDirector.GlobalLogger.Logs.Where(x => x.logLevel is LogLevel.Debug or LogLevel.Information or LogLevel.Trace);
+
+        private IEnumerable<LogItem> Errors => LoggerDirector.GlobalLogger.Logs.Where(x => x.logLevel is LogLevel.Error or LogLevel.Critical);
+
+        private IEnumerable<LogItem> Warnings => LoggerDirector.GlobalLogger.Logs.Where(x => x.logLevel is LogLevel.Warning);
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
-                TaskDirector.QueuedTasks.OnAny += UpdateAlt;
+                LoggerDirector.GlobalLogger.OnLog += Refresh;
 
                 lock (TimerLock)
                 {
@@ -28,11 +39,6 @@ namespace BlazorRunner.Server.Pages
 
             }
             await base.OnAfterRenderAsync(firstRender);
-        }
-
-        void UpdateAlt(object caller, DirectedTask task)
-        {
-            InvokeAsync(() => StateHasChanged()).Wait();
         }
 
         async Task Refresh()
@@ -49,6 +55,21 @@ namespace BlazorRunner.Server.Pages
                 RefreshTimer = new(500);
                 RefreshTimer.Enabled = true;
             }
+        }
+
+        public BootstrapColor GetColor(LogLevel logLevel)
+        {
+            return logLevel switch
+            {
+                LogLevel.Trace => BootstrapColor.secondary,
+                LogLevel.Debug => BootstrapColor.primary,
+                LogLevel.Information => BootstrapColor.info,
+                LogLevel.Warning => BootstrapColor.warning,
+                LogLevel.Error => BootstrapColor.danger,
+                LogLevel.Critical => BootstrapColor.danger,
+                LogLevel.None => BootstrapColor.none,
+                _ => BootstrapColor.none,
+            };
         }
     }
 }

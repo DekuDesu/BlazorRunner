@@ -13,28 +13,54 @@
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <button class="nav-link @(SelectedTab == 0 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  0">All</button>
+                        <button class="nav-link @(SelectedTab == 0 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  0">All <span class="badge bg-primary">@All.Count</span></button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link @(SelectedTab == 1 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  1">Info</button>
+                        <button class="nav-link @(SelectedTab == 1 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  1"><span class="badge bg-secondary">@Info.Count()</span></button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link @(SelectedTab == 2 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  2">Warnings</button>
+                        <button class="nav-link @(SelectedTab == 2 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  2"><span class="badge bg-warning">@Warnings.Count()</span></button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link @(SelectedTab == 3 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  3">Errors</button>
+                        <button class="nav-link @(SelectedTab == 3 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  3"><span class="badge bg-danger">@Errors.Count()</span></button>
                     </li>
                 </ul>
             </div>
-            <div class="card-body">
-                <div class="card-body">
+            <div class="card-body" style="padding-left: 0px; padding-right: 0px;">
+                <div class="card-body" style="text-align: left;">
                     @switch (SelectedTab)
                     {
                         case 0:
-
+                            <ul class="list-group" style="padding-left: 0px; padding-right: 0px;">
+                                @foreach (var item in All)
+                                {
+                                    <ListGroupItem Content="item.FormattedString" Status=@GetColor(item.logLevel)></ListGroupItem>
+                                }
+                            </ul>
                             break;
                         case 1:
-
+                            <ul class="list-group" style="padding-left: 0px; padding-right: 0px;">
+                                @foreach (var item in Info)
+                                {
+                                    <ListGroupItem Content="item.FormattedString" Status=@GetColor(item.logLevel)></ListGroupItem>
+                                }
+                            </ul>
+                            break;
+                        case 2:
+                            <ul class="list-group" style="padding-left: 0px; padding-right: 0px;">
+                                @foreach (var item in Warnings)
+                                {
+                                    <ListGroupItem Content="item.FormattedString" Status=@GetColor(item.logLevel)></ListGroupItem>
+                                }
+                            </ul>
+                            break;
+                        case 3:
+                            <ul class="list-group" style="padding-left: 0px; padding-right: 0px;">
+                                @foreach (var item in Errors)
+                                {
+                                    <ListGroupItem Content="item.FormattedString" Status=@GetColor(item.logLevel)></ListGroupItem>
+                                }
+                            </ul>
                             break;
                     }
                 </div>

@@ -1,3 +1,4 @@
+using BlazorRunner.Runner.RuntimeHandling;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +14,8 @@ namespace BlazorRunner.Server
     {
         public static void Main(string[] args)
         {
+            LoggerDirector.RedirectConsole();
+
             CreateHostBuilder(args).Build().Run();
         }
 

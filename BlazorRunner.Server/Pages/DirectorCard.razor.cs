@@ -32,9 +32,14 @@ namespace BlazorRunner.Server.Pages
             await base.OnAfterRenderAsync(firstRender);
         }
 
+        private void ChangeCapacity(object capacity)
+        {
+            TaskDirector.ResizeCapacity((int)capacity);
+        }
+
         void UpdateStateHasChanged<T>(object caller, T obj)
         {
-            InvokeAsync(() => StateHasChanged()).Wait();
+            Task.Run(() => InvokeAsync(() => StateHasChanged()));
         }
 
         async Task Refresh()

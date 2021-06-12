@@ -19,30 +19,22 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+
         if (AssemblyDirector.StartingAssembies.Length == 0)
         {
             AssemblyDirector.StartingAssembies = new System.Reflection.Assembly[]{
                     typeof(ServerTestAssembly.MyExampleScript).Assembly
                 };
         }
+
         await AssemblyDirector.LoadStartupAssemblies();
-        ImportedTestAssembly = AssemblyDirector.LoadedAssemblies.First().Value;
+
+        ImportedTestAssembly = AssemblyDirector.LoadedAssemblies.FirstOrDefault().Value;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-
-        if (firstRender)
-        {
-            if (AssemblyDirector.StartingAssembies.Length == 0)
-            {
-                AssemblyDirector.StartingAssembies = new System.Reflection.Assembly[]{
-                    typeof(ServerTestAssembly.MyExampleScript).Assembly
-                };
-            }
-            await AssemblyDirector.LoadStartupAssemblies();
-        }
 
         if (TaskDirector.ExecutingTasks is false)
         {

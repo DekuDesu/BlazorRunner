@@ -28,7 +28,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
         {
             foreach (var item in Loggers)
             {
-                if (!item.IsEnabled(logLevel))
+                if (item?.IsEnabled(logLevel) is false)
                 {
                     return false;
                 }
@@ -40,7 +40,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
         {
             foreach (var item in Loggers)
             {
-                item.Log(logLevel, eventId, state, exception, formatter);
+                item?.Log(logLevel, eventId, state, exception, formatter);
             }
         }
     }

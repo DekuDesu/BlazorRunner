@@ -22,6 +22,8 @@ namespace BlazorRunner.Runner.RuntimeHandling
 
         public int Count => BackingDictionary.Count;
 
+        public bool IsEmpty => Count == 0;
+
         public bool IsReadOnly => BackingDictionary.IsReadOnly;
 
         public event Action<object, KeyValuePair<TKey, TValue>> OnAdd;

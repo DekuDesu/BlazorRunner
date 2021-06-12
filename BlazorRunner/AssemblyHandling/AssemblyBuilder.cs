@@ -12,11 +12,6 @@ namespace BlazorRunner.Runner
 {
     public class AssemblyBuilder : IAssemblyBuilder
     {
-        /// <summary>
-        /// Logger that is injected when a script contains [Logger] attribute on a <see cref="ILogger"/> field or property
-        /// </summary>
-        public static ILogger DefaultLogger { get; set; } = new UXLogger();
-
         public static readonly object[] DefaultSliderMininums = {
             sbyte.MinValue,
             (byte)0,
@@ -131,11 +126,25 @@ namespace BlazorRunner.Runner
 
             var loggerFields = fields.Where(x => x.FieldType == typeof(ILogger));
 
+            Guid id = Guid.NewGuid();
+
+            if (instance is RegisteredObject obj)
+            {
+                id = obj.Id;
+            }
+
+            string name = null;
+
+            if (instance is IBasicInfo info)
+            {
+                name = info.Name;
+            }
+
             foreach (var item in loggerFields)
             {
                 if (TryGetAttribute<LoggerAttribute>(item, out _))
                 {
-                    item.SetValue(instance, DefaultLogger);
+                    item.SetValue(instance, LoggerDirector.CreateLogger(id, name));
 
                     return;
                 }
@@ -149,7 +158,7 @@ namespace BlazorRunner.Runner
             {
                 if (TryGetAttribute<LoggerAttribute>(item, out _))
                 {
-                    item.SetValue(instance, DefaultLogger);
+                    item.SetValue(instance, LoggerDirector.CreateLogger(id, name));
 
                     return;
                 }

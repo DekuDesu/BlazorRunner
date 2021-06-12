@@ -13,10 +13,10 @@
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <button class="nav-link @(SelectedTab == 0 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  0">Running <span class="badge bg-success">@TaskDirector.RunningTasks.Count</span></button>
+                        <button class="nav-link @(SelectedTab == 0 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  0">Running <span class="badge bg-success">@TaskDirector.Running</span></button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link @(SelectedTab == 1 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  1">Queued <span class="badge bg-primary">@TaskDirector.QueuedTasks.Count</span></button>
+                        <button class="nav-link @(SelectedTab == 1 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  1">Queued <span class="badge bg-primary">@TaskDirector.Queued</span></button>
                     </li>
                     <li class="nav-item">
                         <button class="nav-link @(SelectedTab == 2 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  2"><span class="oi oi-cog"></span></button>
@@ -40,7 +40,7 @@
                         break;
                     case 2:
                         <h5>Max Running Tasks</h5>
-                        <PrimitiveSlider T="int" DefaultValue="Environment.ProcessorCount" Min="1" Max=@Environment.ProcessorCount StepAmount="1" EnableBitShift="false" EnableIncrement="true" EnableSlider="true" EnableSliderConstraints="true"></PrimitiveSlider>
+                        <PrimitiveSlider T="int" DefaultValue=TaskDirector.Capacity Min="1" Max=@Environment.ProcessorCount StepAmount="1" EnableBitShift="false" EnableIncrement="true" EnableSlider="true" EnableSliderConstraints="true" OnChange="ChangeCapacity"></PrimitiveSlider>
                         break;
                 }
             </div>

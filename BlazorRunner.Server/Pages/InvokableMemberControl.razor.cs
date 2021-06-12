@@ -18,7 +18,10 @@ namespace BlazorRunner.Server.Pages
         {
             Running = true;
 
-            TaskDirector.QueueTask(Member.ToAction(), Member.Id);
+            for (int i = 0; i < 1; i++)
+            {
+                TaskDirector.QueueTask(Member.ToAction(), Member.Id);
+            }
 
             await Task.Delay(250);
 

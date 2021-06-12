@@ -1,0 +1,11 @@
+﻿<li class=@EntryClass style="padding-left: 5px; padding-right: 5px;">@((object)(@Content.ToString()))</li>
+
+@code {
+    [Parameter]
+    public object Content { get; set; }
+
+    [Parameter]
+    public BootstrapColor Status { get; set; }
+
+    private string EntryClass => $"list-group-item {(Status != 0 ? $"list-group-item-{Status}" : "")}";
+}

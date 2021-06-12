@@ -15,19 +15,42 @@ namespace BlazorRunner.Runner
 
         public static readonly ConcurrentCallbackDictionary<Guid, DirectedTask> RunningTasks = new();
 
+        public static SemaphoreSlim TaskLimiter { get; private set; } = new(Environment.ProcessorCount, Environment.ProcessorCount);
+
+        /// <summary>
+        /// the amount of queued tasks
+        /// </summary>
+        public static int Queued => QueuedTasks.Count;
+
+        /// <summary>
+        /// The amount of running tasks
+        /// </summary>
+        public static int Running => RunningTasks.Count;
+
+        /// <summary>
+        /// The limit of tasks that can be executed at once, use <see cref="ResizeCapacity"/> to change the size during runtime.
+        /// </summary>
+        public static int Capacity { get; private set; } = Environment.ProcessorCount;
+
+        /// <summary>
+        /// Returns true when tasks are waiting to be executed from the queue
+        /// </summary>
+        public static bool ExecutingTasks { get; private set; } = false;
+
+        /// <summary>
+        /// <see langword="true"/> when no queued or running tasks exist
+        /// </summary>
+        public static bool IsEmpty => QueuedTasks.IsEmpty && RunningTasks.IsEmpty;
+
         private static CancellationTokenSource GlobalToken = new();
 
-        public static readonly SemaphoreSlim TaskLimiter = new(Environment.ProcessorCount, Environment.ProcessorCount);
+        private static int NewCapacity = Environment.ProcessorCount;
 
-        public static int RunningCount => MaxRunningTasks - TaskLimiter.CurrentCount;
-
-        public static int MaxRunningTasks { get; set; } = Environment.ProcessorCount;
-
-        public static bool ExecutingTasks { get; private set; } = false;
+        private static bool ChangingCapacity = false;
 
         static TaskDirector()
         {
-            QueuedTasks.OnPush += (x, y) => Task.Run(ExecuteQueuedTasks, GlobalToken.Token);
+            QueuedTasks.OnPush += async (x, y) => await ExecuteQueuedTasks();
         }
 
         public static async Task ExecuteQueuedTasks()
@@ -43,33 +66,16 @@ namespace BlazorRunner.Runner
                     return;
                 }
 
-                // deque a task
-                if (QueuedTasks.TryDequeue(out DirectedTask task))
+                if (await TaskLimiter.WaitAsync(1))
                 {
-                    // execute it
-                    await StartTask(task);
+                    if (QueuedTasks.TryDequeue(out DirectedTask task))
+                    {
+                        // execute it
+                        task?.BackingTask.Start();
+                    }
                 }
 
                 await Task.Delay(10);
-            }
-        }
-
-        private static async Task StartTask(DirectedTask task)
-        {
-            while (true)
-            {
-                // make sure we can exit gracefully
-                if (GlobalToken.IsCancellationRequested)
-                {
-                    return;
-                }
-                // wait for sempahore for only 1 ms
-                if (await TaskLimiter.WaitAsync(1))
-                {
-                    // start the task if we got the sempahore
-                    task?.BackingTask.Start();
-                    return;
-                }
             }
         }
 
@@ -102,6 +108,54 @@ namespace BlazorRunner.Runner
         private static void RemoveRunningTask(DirectedTask task)
         {
             RunningTasks?.Remove(task.Id);
+        }
+
+        public static void ResizeCapacity(int Capacity)
+        {
+            if (Capacity == TaskDirector.Capacity)
+            {
+                return;
+            }
+
+            if (ChangingCapacity is false)
+            {
+                NewCapacity = Capacity;
+
+                if (IsEmpty)
+                {
+                    ResizeSemaphore();
+                    return;
+                }
+
+                ChangingCapacity = true;
+
+                RunningTasks.OnEmpty += Resize;
+                QueuedTasks.OnEmpty += Resize;
+            }
+        }
+
+        private static void Resize<T>(T caller)
+        {
+            if (TaskLimiter.CurrentCount == Capacity && RunningTasks.IsEmpty && QueuedTasks.IsEmpty)
+            {
+                ResizeSemaphore();
+
+                RunningTasks.OnEmpty -= Resize;
+                QueuedTasks.OnEmpty -= Resize;
+
+                ChangingCapacity = false;
+            }
+        }
+
+        private static void ResizeSemaphore()
+        {
+            for (int i = 0; i < Capacity; i++)
+            {
+                TaskLimiter.Wait();
+            }
+            TaskLimiter?.Dispose();
+            TaskLimiter = new SemaphoreSlim(NewCapacity, NewCapacity);
+            Capacity = NewCapacity;
         }
 
         public static void Dispose()

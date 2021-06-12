@@ -49,13 +49,14 @@ namespace BlazorRunner.Runner.RuntimeHandling
             try
             {
                 BackingQueue.Enqueue(item);
-                OnPush?.Invoke(this, item);
-                OnAny?.Invoke(this, item);
             }
             finally
             {
                 ReaderLock.Set();
             }
+
+            OnPush?.Invoke(this, item);
+            OnAny?.Invoke(this, item);
 
 
             return true;
@@ -179,40 +180,19 @@ namespace BlazorRunner.Runner.RuntimeHandling
 
         public object SyncRoot => ((ICollection)BackingQueue).SyncRoot;
 
-        public void CopyTo(T[] array, int index)
-        {
-            BackingQueue.CopyTo(array, index);
-        }
+        public void CopyTo(T[] array, int index) => BackingQueue.CopyTo(array, index);
 
-        public void CopyTo(Array array, int index)
-        {
-            ((ICollection)BackingQueue).CopyTo(array, index);
-        }
+        public void CopyTo(Array array, int index) => ((ICollection)BackingQueue).CopyTo(array, index);
 
-        public IEnumerator<T> GetEnumerator()
-        {
-            return BackingQueue.GetEnumerator();
-        }
+        public IEnumerator<T> GetEnumerator() => BackingQueue.GetEnumerator();
 
-        public T[] ToArray()
-        {
-            return BackingQueue.ToArray();
-        }
+        public T[] ToArray() => BackingQueue.ToArray();
 
-        public bool TryAdd(T item)
-        {
-            return Push(item);
-        }
+        public bool TryAdd(T item) => Push(item);
 
-        public bool TryTake([MaybeNullWhen(false)] out T item)
-        {
-            return BackingQueue.TryDequeue(out item);
-        }
+        public bool TryTake([MaybeNullWhen(false)] out T item) => BackingQueue.TryDequeue(out item);
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return BackingQueue.GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => BackingQueue.GetEnumerator();
 
         public void Dispose()
         {
