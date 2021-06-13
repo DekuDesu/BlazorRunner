@@ -80,16 +80,16 @@ namespace BlazorRunner.Runner
             }
         }
 
-        public static void QueueTask(Action action, Guid? Id, ILogger logger)
+        public static async Task<DirectedTask> QueueTask(Action<CancellationToken> action, Guid? Id, ILogger logger, string Name)
         {
-            Task.Run(() => QueueWorker(action, Id, logger), GlobalToken.Token);
+            return await Task.Run(() => QueueWorker(action, Id, logger, Name), GlobalToken.Token);
         }
 
-        private static DirectedTask QueueWorker(Action action, Guid? Id, ILogger logger)
+        private static DirectedTask QueueWorker(Action<CancellationToken> action, Guid? Id, ILogger logger, string Name)
         {
             var id = Id ?? Guid.NewGuid();
 
-            var newTask = new DirectedTask(action, TaskLimiter, logger) { BackingId = id };
+            var newTask = new DirectedTask(action, TaskLimiter, logger, Name) { BackingId = id };
 
             // make sure we register call backs for the task so we can keep track of it
             newTask.OnFinal += (x, y) => RemoveRunningTask((DirectedTask)x);

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BlazorRunner.Runner
@@ -471,13 +472,27 @@ namespace BlazorRunner.Runner
                 }
 
                 // prevent methods with parameters
-                if (method.GetParameters().Length > 0)
+                // allow scripts that have a cancellation token parameter
+                var parameters = method.GetParameters();
+
+                bool acceptsCancellationToken = false;
+
+                if (parameters.Length > 0)
                 {
-                    throw Helpers.Exceptions.IncompatibleWithParameters(method);
+                    if (parameters.Length == 1 && parameters[0].ParameterType == typeof(CancellationToken))
+                    {
+                        acceptsCancellationToken = true;
+                    }
+                    else
+                    {
+                        throw Helpers.Exceptions.IncompatibleWithParameters(method);
+                    }
                 }
 
                 // create a new invokable member
                 IInvokableMember newMember = Factory.CreateInvokableMember(method, backingInstance);
+
+                newMember.AcceptsCancellationToken = acceptsCancellationToken;
 
                 // add some flavor text if it has it
                 AssignFlavorText(newMember, method);

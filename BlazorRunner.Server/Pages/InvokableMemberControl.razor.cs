@@ -22,7 +22,7 @@ namespace BlazorRunner.Server.Pages
             {
                 for (int i = 0; i < 1; i++)
                 {
-                    TaskDirector.QueueTask(Member.ToAction(), Member.Id, Parent.Logger);
+                    await TaskDirector.QueueTask(Member.ToAction(), Member.Id, Parent.Logger, Member.Name);
                 }
             }
 

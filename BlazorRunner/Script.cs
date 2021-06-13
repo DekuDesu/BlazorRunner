@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BlazorRunner.Runner
@@ -34,6 +35,21 @@ namespace BlazorRunner.Runner
 
         public IDisposable ManagedResource { get; set; }
 
+        public Action<CancellationToken> ToAction()
+        {
+            return (CancellationToken token) => Invoke(token);
+        }
+
+        public object Invoke(CancellationToken token)
+        {
+            Setup?.Invoke(token);
+
+            object result = EntryPoint?.Invoke(token);
+
+            Cleanup?.Invoke(token);
+
+            return result;
+        }
 
         public object Invoke()
         {

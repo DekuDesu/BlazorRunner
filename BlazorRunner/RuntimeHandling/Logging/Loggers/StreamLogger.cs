@@ -68,7 +68,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
                 _Logs.CopyTo(logs);
             }
 
-            return logs;
+            return logs.Reverse().ToArray();
         }
 
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BlazorRunner.Runner
@@ -20,11 +21,18 @@ namespace BlazorRunner.Runner
         public object[] DefaultParameters { get; set; } = null;
 
         public object BackingInstance { get; init; }
+
         public Guid Parent { get; set; }
 
-        public Action ToAction()
+        public bool AcceptsCancellationToken { get; set; } = false;
+
+        public Action<CancellationToken> ToAction()
         {
-            return () => Invoke();
+            if (AcceptsCancellationToken)
+            {
+                return (CancellationToken token) => Invoke(token);
+            }
+            return (CancellationToken token) => Invoke();
         }
 
         public object Invoke()
@@ -32,6 +40,14 @@ namespace BlazorRunner.Runner
             return BackingMethod?.Invoke(BackingInstance, DefaultParameters);
         }
 
+        public object Invoke(CancellationToken token)
+        {
+            if (AcceptsCancellationToken)
+            {
+                return Invoke(new object[] { token });
+            }
+            return Invoke();
+        }
         public object Invoke(params object[] parameters)
         {
             return BackingMethod?.Invoke(BackingInstance, parameters.Length != 0 ? parameters : DefaultParameters);

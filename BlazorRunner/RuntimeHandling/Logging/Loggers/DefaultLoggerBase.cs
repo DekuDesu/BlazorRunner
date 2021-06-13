@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BlazorRunner.Runner.RuntimeHandling
@@ -69,7 +70,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
                 _Logs.CopyTo(logs);
             }
 
-            return logs;
+            return logs.Reverse().ToArray();
         }
 
         protected void InvokeOnLog()

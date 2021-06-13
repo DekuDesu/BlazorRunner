@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BlazorRunner.Runner.Helpers.Formatting;
 
 namespace BlazorRunner.Runner
 {
@@ -14,9 +15,11 @@ namespace BlazorRunner.Runner
     {
         public readonly Task BackingTask;
 
+        public string Name { get; init; }
+
         public readonly Stopwatch Timer = new();
 
-        private readonly Action BackingAction;
+        private readonly Action<CancellationToken> BackingAction;
 
         private readonly SemaphoreSlim Limiter;
 
@@ -46,7 +49,7 @@ namespace BlazorRunner.Runner
         public event Action<object, TaskResult> OnFinal;
 
 
-        public DirectedTask(Action Work, SemaphoreSlim Limiter, ILogger Logger)
+        public DirectedTask(Action<CancellationToken> Work, SemaphoreSlim Limiter, ILogger Logger, string Name)
         {
             this.BackingAction = Work;
 
@@ -58,7 +61,9 @@ namespace BlazorRunner.Runner
 
             this.BackingTask = new Task(Worker, TokenSource.Token);
 
-            Logger.LogTrace($"Created worker");
+            this.Name = $"[{Name}]".AsMethodName();
+
+            Logger.LogTrace($"Created worker {this.Name}");
         }
 
         private void Worker()
@@ -69,15 +74,21 @@ namespace BlazorRunner.Runner
             {
                 OnStart?.Invoke(this, result);
                 OnAny?.Invoke(this, result);
-                Logger.LogTrace($"Started Worker {GetThreadInfo()}");
+                Logger.LogTrace($"Started Worker {Name} {GetThreadInfo()}");
 
                 Status = DirectedTaskStatus.Running;
 
                 Timer.Start();
 
-                BackingAction?.Invoke();
+                BackingAction?.Invoke(TokenSource.Token);
 
                 Timer.Stop();
+
+                if (Cancelled)
+                {
+                    // if the task was cancelled but we got here - then the backing action did not throw when the token ended
+                    Logger.LogWarning(Helpers.Warnings.DirectedTaskCancelledWithoutThrowing());
+                }
 
                 Status = DirectedTaskStatus.Finished;
 
@@ -86,11 +97,17 @@ namespace BlazorRunner.Runner
                 OnComplete?.Invoke(this, result);
                 OnAny?.Invoke(this, result);
 
-                Logger.LogDebug($"Finished Worker {GetTime()} {GetThreadInfo()}");
+                Logger.LogDebug($"Finished Worker {Name} {GetTime()} {GetThreadInfo()}");
             }
             catch (Exception e)
             {
                 Timer.Stop();
+
+                if (ContainsException<OperationCanceledException>(e))
+                {
+                    Logger.LogDebug($"Worker {Name} cancelled successfully {GetTime()} {GetThreadInfo()}");
+                    return;
+                }
 
                 Fault = e;
 
@@ -102,7 +119,7 @@ namespace BlazorRunner.Runner
                 OnFault?.Invoke(this, result);
                 OnAny?.Invoke(this, result);
 
-                Logger.LogError($"Worker encountered an error {GetTime()} {GetThreadInfo()}");
+                Logger.LogError($"Worker {Name} encountered an error {GetTime()} {GetThreadInfo()}");
                 LogExceptions(e.InnerException);
             }
             finally
@@ -141,7 +158,7 @@ namespace BlazorRunner.Runner
             OnAny?.Invoke(this, result);
             OnFinal?.Invoke(this, result);
 
-            Logger.LogWarning($"Worker cancelled {GetTime()} {GetThreadInfo()}");
+            Logger.LogWarning($"Worker {Name} cancelled {GetTime()} {GetThreadInfo()}");
         }
 
         private void ReleaseSemaphore()
@@ -186,6 +203,19 @@ namespace BlazorRunner.Runner
             return Id.GetHashCode();
         }
 
+        private bool ContainsException<T>(Exception e) where T : Exception
+        {
+            if (e is T)
+            {
+                return true;
+            }
+            if (e.InnerException != null)
+            {
+                return ContainsException<T>(e.InnerException);
+            }
+            return false;
+        }
+
         private void LogExceptions(Exception e)
         {
             Logger.LogError($"<pre><div>{e.Message}</div><div>    {e.StackTrace}</div></pre>");
@@ -221,13 +251,13 @@ namespace BlazorRunner.Runner
                 postfix.Append("hrs");
             }
 
-            return $"Time({time}{postfix})";
+            return $"at Time {time.AsNumber()}{postfix.AsBold()}";
         }
 
         private string GetThreadInfo()
         {
             Thread current = Thread.CurrentThread;
-            return $"Thread({current.Name}:{current.ManagedThreadId})";
+            return $"on Thread {current.ManagedThreadId.AsNumber()}";
         }
     }
 }

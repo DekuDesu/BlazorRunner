@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using BlazorRunner.Attributes;
 using Microsoft.Extensions.Logging;
 
@@ -95,6 +96,18 @@ namespace ServerTestAssembly
             Console.WriteLine("Started Cat");
             Logger.LogInformation("Started Waiting for {Milliseconds}", Cat);
             Thread.Sleep(Cat);
+            Logger.LogInformation("Finished Waiting");
+            Console.WriteLine("Ended Cat");
+            return Cat;
+        }
+
+        [MiniScript]
+        [Description("Uses " + nameof(Cat) + " For length of sleep")]
+        public int WaitAroundWithCancellationToken(CancellationToken token)
+        {
+            Console.WriteLine("Started Cat");
+            Logger.LogInformation("Started Waiting for {Milliseconds}", Cat);
+            Task.Delay(Cat, token).Wait();
             Logger.LogInformation("Finished Waiting");
             Console.WriteLine("Ended Cat");
             return Cat;

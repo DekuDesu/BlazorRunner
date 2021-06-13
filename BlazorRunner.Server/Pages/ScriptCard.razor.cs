@@ -11,5 +11,10 @@ namespace BlazorRunner.Server.Pages
     {
         [Parameter]
         public IScript Script { get; set; }
+
+        private async Task QueueEntryPoint()
+        {
+            await TaskDirector.QueueTask(Script.ToAction(), Script.EntryPoint.Id, Script.Logger, Script.Name);
+        }
     }
 }

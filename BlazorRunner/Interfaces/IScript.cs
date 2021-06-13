@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace BlazorRunner.Runner
 {
@@ -23,5 +24,7 @@ namespace BlazorRunner.Runner
         ILogger Logger { get; set; }
 
         object Invoke();
+        object Invoke(CancellationToken token);
+        Action<CancellationToken> ToAction();
     }
 }
