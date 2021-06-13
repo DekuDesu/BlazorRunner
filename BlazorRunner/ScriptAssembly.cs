@@ -95,6 +95,17 @@ namespace BlazorRunner.Runner
             return null;
         }
 
+        public bool TryGetScript(Guid Id, out IScript found)
+        {
+            if (ScriptDictionary.ContainsKey(Id))
+            {
+                found = ScriptDictionary[Id];
+                return true;
+            }
+            found = default;
+            return false;
+        }
+
         public void AddScript(IScript script)
         {
             if (ScriptDictionary.ContainsKey(script.Id) is false)

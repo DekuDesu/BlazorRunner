@@ -14,6 +14,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
         bool MirrorToConsole { get; set; }
         bool MirrorToFile { get; set; }
         string Path { get; set; }
+        object SynchronizationObject { get; }
 
         event Func<Task> OnLog;
     }

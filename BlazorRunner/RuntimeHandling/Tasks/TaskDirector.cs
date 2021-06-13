@@ -1,4 +1,5 @@
 ﻿using BlazorRunner.Runner.RuntimeHandling;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -79,16 +80,16 @@ namespace BlazorRunner.Runner
             }
         }
 
-        public static void QueueTask(Action action, Guid? Id)
+        public static void QueueTask(Action action, Guid? Id, ILogger logger)
         {
-            Task.Run(() => QueueWorker(action, Id), GlobalToken.Token);
+            Task.Run(() => QueueWorker(action, Id, logger), GlobalToken.Token);
         }
 
-        private static DirectedTask QueueWorker(Action action, Guid? Id)
+        private static DirectedTask QueueWorker(Action action, Guid? Id, ILogger logger)
         {
             var id = Id ?? Guid.NewGuid();
 
-            var newTask = new DirectedTask(action, TaskLimiter, new()) { BackingId = id };
+            var newTask = new DirectedTask(action, TaskLimiter, logger) { BackingId = id };
 
             // make sure we register call backs for the task so we can keep track of it
             newTask.OnFinal += (x, y) => RemoveRunningTask((DirectedTask)x);

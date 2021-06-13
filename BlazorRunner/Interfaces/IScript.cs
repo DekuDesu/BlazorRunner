@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BlazorRunner.Runner.RuntimeHandling;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 
 namespace BlazorRunner.Runner
@@ -18,6 +20,7 @@ namespace BlazorRunner.Runner
         IDisposable ManagedResource { get; set; }
         IDictionary<string, IScriptSetting[]> SettingGroups { get; set; }
         IDictionary<string, IInvokableMember[]> ScriptGroups { get; set; }
+        ILogger Logger { get; set; }
 
         object Invoke();
     }

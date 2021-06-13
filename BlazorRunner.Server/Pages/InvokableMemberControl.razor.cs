@@ -18,9 +18,12 @@ namespace BlazorRunner.Server.Pages
         {
             Running = true;
 
-            for (int i = 0; i < 1; i++)
+            if (Index.SelectedAssembly.TryGetScript(Member.Parent, out var Parent))
             {
-                TaskDirector.QueueTask(Member.ToAction(), Member.Id);
+                for (int i = 0; i < 1; i++)
+                {
+                    TaskDirector.QueueTask(Member.ToAction(), Member.Id, Parent.Logger);
+                }
             }
 
             await Task.Delay(250);

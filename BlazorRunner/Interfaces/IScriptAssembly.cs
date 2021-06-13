@@ -49,5 +49,6 @@ namespace BlazorRunner.Runner
         object InvokeMember(Guid ScriptId);
 
         void SetSetting(Guid SettingId, object Value);
+        bool TryGetScript(Guid Id, out IScript found);
     }
 }

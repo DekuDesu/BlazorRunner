@@ -71,9 +71,12 @@ namespace BlazorRunner.Runner
                 object ScriptInstance = CreateScriptInstance(item);
 
                 // make sure the instance can interact with the UX
-                InjectILogger(ScriptInstance);
+                ILogger injectedLogger = InjectILogger(ScriptInstance);
 
                 IScript newScript = Factory.CreateScript(ScriptInstance);
+
+                // make sure we have a way for the script to talk with the UX
+                newScript.Logger = injectedLogger;
 
                 // attach the flavor text like the name and description
                 AssignFlavorText(newScript, item);
@@ -99,6 +102,9 @@ namespace BlazorRunner.Runner
                 // make sure to add the object as a managed resource if the script implements IDisposable
                 newScript.ManagedResource = CheckForManagedScript(item, ScriptInstance);
 
+                // make sure we can find the script from any children invokable members
+                AssignParents(newScript);
+
                 newScriptAssembly.AddScript(newScript);
             }
 
@@ -118,7 +124,18 @@ namespace BlazorRunner.Runner
             return newScriptAssembly;
         }
 
-        private void InjectILogger(object instance)
+        private void AssignParents(IScript script)
+        {
+            foreach (var item in script.MiniScripts)
+            {
+                item.Parent = script.Id;
+            }
+            script.Setup.Parent = script.Id;
+            script.EntryPoint.Parent = script.Id;
+            script.Cleanup.Parent = script.Id;
+        }
+
+        private ILogger InjectILogger(object instance)
         {
             Type instanceType = instance.GetType();
 
@@ -144,9 +161,11 @@ namespace BlazorRunner.Runner
             {
                 if (TryGetAttribute<LoggerAttribute>(item, out _))
                 {
-                    item.SetValue(instance, LoggerDirector.CreateLogger(id, name));
+                    var logger = LoggerDirector.CreateLogger(id, name);
 
-                    return;
+                    item.SetValue(instance, logger);
+
+                    return logger;
                 }
             }
 
@@ -158,11 +177,15 @@ namespace BlazorRunner.Runner
             {
                 if (TryGetAttribute<LoggerAttribute>(item, out _))
                 {
-                    item.SetValue(instance, LoggerDirector.CreateLogger(id, name));
+                    var logger = LoggerDirector.CreateLogger(id, name);
 
-                    return;
+                    item.SetValue(instance, logger);
+
+                    return logger;
                 }
             }
+
+            return LoggerDirector.CreateLogger(id, name);
         }
 
         private bool TryGetAttribute<T>(MemberInfo type, out T attribute) where T : System.Attribute
@@ -421,6 +444,7 @@ namespace BlazorRunner.Runner
                 }
 
                 Expression(script, invokableMembers[0]);
+
             }
         }
 

@@ -12,7 +12,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
 {
     public class StreamLogger : TextWriter, IScriptLogger
     {
-        public LogLevel MinimumLogLevel { get; set; } = LogLevel.Debug;
+        public LogLevel MinimumLogLevel { get; set; } = LogLevel.Trace;
 
         [NotNull]
         public string Path { get; set; } = "";
@@ -20,7 +20,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
         [MaybeNull]
         public TextWriter OutWriter { get; set; }
 
-        public IReadOnlyCollection<LogItem> Logs => _Logs;
+        public IReadOnlyCollection<LogItem> Logs => VolatileCopy();
 
         public bool MirrorToConsole { get; set; } = false;
 
@@ -35,7 +35,9 @@ namespace BlazorRunner.Runner.RuntimeHandling
 
         internal List<LogItem> _Logs = new();
 
-        private readonly object LogLock = new();
+        private static readonly object v = new();
+
+        public object SynchronizationObject => v;
 
         public StreamLogger()
         {
@@ -55,6 +57,19 @@ namespace BlazorRunner.Runner.RuntimeHandling
         }
 
         public event Func<Task> OnLog;
+
+        private LogItem[] VolatileCopy()
+        {
+            LogItem[] logs = Array.Empty<LogItem>();
+
+            lock (SynchronizationObject)
+            {
+                logs = new LogItem[_Logs.Count];
+                _Logs.CopyTo(logs);
+            }
+
+            return logs;
+        }
 
 
         private void LogValue([AllowNull] object value)
@@ -193,12 +208,12 @@ namespace BlazorRunner.Runner.RuntimeHandling
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            return logLevel >= MinimumLogLevel;
+            return logLevel >= MinimumLogLevel && logLevel != LogLevel.None;
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            if (logLevel < MinimumLogLevel)
+            if (IsEnabled(logLevel) is false)
             {
                 return;
             }
@@ -224,7 +239,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
             {
                 if (_Logs.Count >= MaxLogsKeptInMemory)
                 {
-                    lock (LogLock)
+                    lock (SynchronizationObject)
                     {
                         _Logs.RemoveAt(0);
                         _Logs.Add(item);
@@ -233,7 +248,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
                 }
             }
 
-            lock (LogLock)
+            lock (SynchronizationObject)
             {
                 _Logs.Add(item);
             }

@@ -10,26 +10,45 @@ using System.Timers;
 
 namespace BlazorRunner.Server.Pages
 {
-    public partial class ConsoleCard : ComponentBase, IDisposable
+    public partial class LocalConsoleCard : ComponentBase
     {
+        [Parameter]
+        public IScript Script { get; set; }
+
+        private IScriptLogger Logger;
+
         private int SelectedTab = 0;
 
         private volatile Timer RefreshTimer = new(500);
         private object TimerLock = new();
 
-        private IReadOnlyCollection<LogItem> All => LoggerDirector.GlobalLogger.Logs;
+        private IReadOnlyCollection<LogItem> All => Logger?.Logs;
 
-        private IEnumerable<LogItem> Info => LoggerDirector.GlobalLogger.Logs.ToArray().Where(x => x.logLevel is LogLevel.Debug or LogLevel.Information or LogLevel.Trace);
+        private IEnumerable<LogItem> Info => Logger?.Logs.Where(x => x.logLevel is LogLevel.Debug or LogLevel.Information or LogLevel.Trace);
 
-        private IEnumerable<LogItem> Errors => LoggerDirector.GlobalLogger.Logs.ToArray().Where(x => x.logLevel is LogLevel.Error or LogLevel.Critical);
+        private IEnumerable<LogItem> Errors => Logger?.Logs.Where(x => x.logLevel is LogLevel.Error or LogLevel.Critical);
 
-        private IEnumerable<LogItem> Warnings => LoggerDirector.GlobalLogger.Logs.ToArray().Where(x => x.logLevel is LogLevel.Warning);
+        private IEnumerable<LogItem> Warnings => Logger?.Logs.Where(x => x.logLevel is LogLevel.Warning);
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
-                LoggerDirector.GlobalLogger.OnLog += Refresh;
+                if (Script != null)
+                {
+                    if (Script.Logger is LoggerSplitter splitter)
+                    {
+                        var logger = splitter.Loggers[1];
+                        if (logger is IScriptLogger scriptLogger)
+                        {
+                            this.Logger = scriptLogger;
+                        }
+                    }
+                }
+                if (Logger != null)
+                {
+                    Logger.OnLog += Refresh;
+                }
 
                 lock (TimerLock)
                 {

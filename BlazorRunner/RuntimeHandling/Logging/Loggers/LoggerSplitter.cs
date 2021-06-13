@@ -12,7 +12,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
     /// </summary>
     public class LoggerSplitter : ILogger
     {
-        private readonly ILogger[] Loggers = Array.Empty<ILogger>();
+        public readonly ILogger[] Loggers = Array.Empty<ILogger>();
 
         public LoggerSplitter(params ILogger[] loggers)
         {

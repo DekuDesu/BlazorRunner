@@ -26,11 +26,11 @@ namespace BlazorRunner.Runner.RuntimeHandling
 
         public static int MaxLogsKeptInMemory { get; set; } = 1_000;
 
-        public static LogLevel MinimumLogLevel { get; set; } = LogLevel.Debug;
+        public static LogLevel MinimumLogLevel { get; set; } = LogLevel.Trace;
 
         public static bool MirrorToFile { get; set; } = false;
 
-        public static bool MirrorToConsole { get; set; } = true;
+        public static bool MirrorToConsole { get; set; } = false;
 
         public static ILogger CreateLogger(Guid Id, string FileName = null)
         {
@@ -57,6 +57,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
             if (GlobalLogger is StreamLogger logger)
             {
                 logger.OutWriter = Console.Out;
+                logger.MinimumLogLevel = MinimumLogLevel;
                 logger.MirrorToFile = true;
                 logger.MirrorToConsole = false;
                 Console.SetOut(logger);

@@ -105,7 +105,7 @@ namespace ServerTestAssembly
         public void ThrowsException()
         {
             Console.Error.WriteLine("Throwing Error");
-            throw new Exception(Crocodile);
+            throw new InvalidTimeZoneException(Crocodile);
         }
 
         public void HiddenStuff()

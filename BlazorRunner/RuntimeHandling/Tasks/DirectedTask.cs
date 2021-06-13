@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BlazorRunner.Runner.RuntimeHandling;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -22,6 +24,8 @@ namespace BlazorRunner.Runner
 
         private readonly object LimiterLock = new();
 
+        private readonly ILogger Logger;
+
         private bool ReleasedLimiter = false;
 
         public bool Cancelled { get; private set; } = false;
@@ -29,7 +33,6 @@ namespace BlazorRunner.Runner
         public bool Disposed { get; private set; } = false;
 
         public Guid BackingId { get; set; }
-
 
         public Exception Fault { get; private set; } = null;
 
@@ -43,15 +46,19 @@ namespace BlazorRunner.Runner
         public event Action<object, TaskResult> OnFinal;
 
 
-        public DirectedTask(Action Work, SemaphoreSlim Limiter, CancellationTokenSource TokenSource)
+        public DirectedTask(Action Work, SemaphoreSlim Limiter, ILogger Logger)
         {
             this.BackingAction = Work;
 
             this.Limiter = Limiter;
 
-            this.TokenSource = TokenSource;
+            this.TokenSource = new();
+
+            this.Logger = Logger;
 
             this.BackingTask = new Task(Worker, TokenSource.Token);
+
+            Logger.LogTrace($"Created worker");
         }
 
         private void Worker()
@@ -62,6 +69,7 @@ namespace BlazorRunner.Runner
             {
                 OnStart?.Invoke(this, result);
                 OnAny?.Invoke(this, result);
+                Logger.LogTrace($"Started Worker {GetThreadInfo()}");
 
                 Status = DirectedTaskStatus.Running;
 
@@ -77,6 +85,8 @@ namespace BlazorRunner.Runner
 
                 OnComplete?.Invoke(this, result);
                 OnAny?.Invoke(this, result);
+
+                Logger.LogDebug($"Finished Worker {GetTime()} {GetThreadInfo()}");
             }
             catch (Exception e)
             {
@@ -91,6 +101,9 @@ namespace BlazorRunner.Runner
 
                 OnFault?.Invoke(this, result);
                 OnAny?.Invoke(this, result);
+
+                Logger.LogError($"Worker encountered an error {GetTime()} {GetThreadInfo()}");
+                LogExceptions(e.InnerException);
             }
             finally
             {
@@ -127,6 +140,8 @@ namespace BlazorRunner.Runner
             OnCancel?.Invoke(this, result);
             OnAny?.Invoke(this, result);
             OnFinal?.Invoke(this, result);
+
+            Logger.LogWarning($"Worker cancelled {GetTime()} {GetThreadInfo()}");
         }
 
         private void ReleaseSemaphore()
@@ -169,6 +184,50 @@ namespace BlazorRunner.Runner
         public override int GetHashCode()
         {
             return Id.GetHashCode();
+        }
+
+        private void LogExceptions(Exception e)
+        {
+            Logger.LogError($"<pre><div>{e.Message}</div><div>    {e.StackTrace}</div></pre>");
+            if (e.InnerException != null)
+            {
+                LogExceptions(e.InnerException);
+            }
+        }
+
+        private string GetTime()
+        {
+            long time = Timer.ElapsedMilliseconds;
+
+            StringBuilder postfix = new(1, 4);
+
+            if (time < 1000)
+            {
+                postfix.Append("ms");
+            }
+            else if (time < 60_000)
+            {
+                time /= 1000;
+                postfix.Append('s');
+            }
+            else if (time < 3600_000)
+            {
+                time /= 1000 / 60;
+                postfix.Append("mins");
+            }
+            else if (time > 3600_000)
+            {
+                time /= 1000 / 60 / 60;
+                postfix.Append("hrs");
+            }
+
+            return $"Time({time}{postfix})";
+        }
+
+        private string GetThreadInfo()
+        {
+            Thread current = Thread.CurrentThread;
+            return $"Thread({current.Name}:{current.ManagedThreadId})";
         }
     }
 }

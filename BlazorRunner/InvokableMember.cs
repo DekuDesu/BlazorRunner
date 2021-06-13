@@ -20,6 +20,7 @@ namespace BlazorRunner.Runner
         public object[] DefaultParameters { get; set; } = null;
 
         public object BackingInstance { get; init; }
+        public Guid Parent { get; set; }
 
         public Action ToAction()
         {
