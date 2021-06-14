@@ -9,7 +9,7 @@ namespace BlazorRunner.Attributes
     /// <summary>
     /// Allows you to define the name that should be displayed in the UX for <see cref="BlazorRunner"/>, the default(no attribute) is just the object's signature.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Assembly)]
     public class NameAttribute : System.Attribute
     {
         /// <summary>

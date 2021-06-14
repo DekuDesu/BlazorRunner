@@ -8,7 +8,7 @@
         color: @AcronymColor;
         text-shadow: 1px 1px rgb(66 66 66);
         font-size: 4em;">
-            <div @onmouseover=ShowBubbleText @onmouseout=HideBubbleText style="cursor: pointer;">
+            <div @onmouseover=ShowBubbleText @onmouseout=HideBubbleText style="cursor: pointer;" @onclick="SelectAssembly">
                 @((MarkupString)BubbleText)
             </div>
         </div>
@@ -18,7 +18,7 @@
                     @if (ShowRunAll)
                     {
 
-                        <button class="btn btn-outline-success" title="Run All Scripts in @Name">
+                        <button class="btn btn-outline-success" title="Run All Scripts in @Name" @onclick="InvokeAll">
                             <div>
                                 Run All
                             </div>
@@ -30,14 +30,14 @@
                         <div class="text-secondary">
                             Scripts
                         </div>
-                        <span class="badge bg-primary">12</span>
+                        <span class="badge bg-primary">@Scripts</span>
                     }
                 </li>
                 <li class="list-group-item">
                     <div class="text-secondary">
                         Settings
                     </div>
-                    <span class="badge bg-primary">12</span>
+                    <span class="badge bg-primary">@Settings</span>
                 </li>
             </ul>
         </div>

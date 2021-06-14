@@ -1,4 +1,5 @@
 ﻿using BlazorRunner.Runner;
+using BlazorRunner.Runner.RuntimeHandling;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
@@ -52,9 +53,31 @@ namespace BlazorRunner.Server.Pages
             if (Task != null)
             {
 #pragma warning disable CS0234
-                RetrievedInfo = BlazorRunner.Server.Pages.Index.SelectedAssembly.GetFlavorText(Task.BackingId);
+                RetrievedInfo = GetFlavorText(Task.BackingId);
 #pragma warning restore CS0234
             }
+        }
+
+        private IBasicInfo GetFlavorText(Guid id)
+        {
+            if (BlazorRunner.Server.Pages.Index.SelectedAssembly != null)
+            {
+                return BlazorRunner.Server.Pages.Index.SelectedAssembly.GetFlavorText(id);
+            }
+            else
+            {
+                var assemblies = AssemblyDirector.GetAssemblies();
+
+                for (int i = 0; i < assemblies.Length; i++)
+                {
+                    var info = assemblies[i].GetFlavorText(id);
+                    if (info != null)
+                    {
+                        return info;
+                    }
+                }
+            }
+            return null;
         }
     }
 }

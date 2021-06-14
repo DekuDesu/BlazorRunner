@@ -9,7 +9,7 @@ namespace BlazorRunner.Attributes
     /// <summary>
     /// Allows you to define the description that should be displayed in the UX of <see cref="BlazorRunner"/>, the default is none
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Assembly)]
     public class DescriptionAttribute : System.Attribute
     {
         /// <summary>

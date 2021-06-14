@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using BlazorRunner.Attributes;
 using Microsoft.Extensions.Logging;
 
+[assembly: Name("Test Assembly")]
+[assembly: Description("This is a test assembly")]
 namespace ServerTestAssembly
 {
     [Script]

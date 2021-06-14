@@ -62,6 +62,15 @@ namespace BlazorRunner.Runner
         {
             IScriptAssembly newScriptAssembly = Factory.CreateScriptAssembly();
 
+            if (TryGetAttribute<NameAttribute>(assembly, out var att))
+            {
+                newScriptAssembly.Name = att.Name;
+            }
+            if (TryGetAttribute(assembly, out DescriptionAttribute desc))
+            {
+                newScriptAssembly.Description = desc.Description;
+            }
+
             // get all the types that have [Script]
             IEnumerable<Type> scripts = GetTypesWithAttribute<ScriptAttribute>(assembly);
 
@@ -190,6 +199,13 @@ namespace BlazorRunner.Runner
         }
 
         private bool TryGetAttribute<T>(MemberInfo type, out T attribute) where T : System.Attribute
+        {
+            attribute = type.GetCustomAttribute<T>();
+
+            return attribute != null;
+        }
+
+        private bool TryGetAttribute<T>(Assembly type, out T attribute) where T : System.Attribute
         {
             attribute = type.GetCustomAttribute<T>();
 

@@ -1,12 +1,27 @@
 ﻿@page "/"
 @implements IDisposable
 
-<div class="flex">
-    @for (int i = 0; i < (ImportedTestAssembly?.Length ?? 0); i++)
+@if (SelectedAssembly != null)
+{
+    <div class="w-100 my-2">
+        <button class="btn btn-outline-primary" @onclick="()=>SelectedAssembly=null">Back</button>
+    </div>
+    <div class="flex">
+        @for (int i = 0; i < (ImportedTestAssembly?.Length ?? 0); i++)
+        {
+            <ScriptCard Script=@ImportedTestAssembly[i]></ScriptCard>
+        }
+    </div>
+}
+else
+{
+    IScriptAssembly[] assemblies = AssemblyDirector.GetAssemblies();
+    for (int i = 0; i < (assemblies?.Length ?? 0); i++)
     {
-        <ScriptCard Script=@ImportedTestAssembly[i]></ScriptCard>
+        IScriptAssembly assembly = assemblies[i];
+        <AssemblyCard Name="@assembly.Name" Description="@assembly.Description" Scripts="assembly.Scripts.Length" Settings="assembly.Settings.Length" ScriptAssembly="assembly" OnViewClick="() => { SelectedAssembly = assembly; StateHasChanged(); }"></AssemblyCard>
     }
-</div>
+}
 
 <DirectorCard></DirectorCard>
 <ConsoleCard></ConsoleCard>
@@ -14,7 +29,7 @@
 @code{
     private static IScriptAssembly ImportedTestAssembly = null;
 
-    public static IScriptAssembly SelectedAssembly => ImportedTestAssembly;
+    public static IScriptAssembly SelectedAssembly = null;
 
     protected override async Task OnInitializedAsync()
     {

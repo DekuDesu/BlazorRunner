@@ -23,6 +23,17 @@ namespace BlazorRunner.Runner.RuntimeHandling
 
         public static bool LoadedStartupAssemblies { get; private set; } = false;
 
+        public static IScriptAssembly[] GetAssemblies()
+        {
+            var values = LoadedAssemblies.Values;
+
+            IScriptAssembly[] vals = new IScriptAssembly[values.Count];
+
+            values.CopyTo(vals, 0);
+
+            return vals;
+        }
+
         public static async Task<bool> LoadStartupAssemblies()
         {
             if (LoadedStartupAssemblies)

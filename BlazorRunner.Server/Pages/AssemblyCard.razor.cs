@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using BlazorRunner.Runner;
+using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,10 @@ namespace BlazorRunner.Server.Pages
             get => _Name;
             set
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _Name = value;
                 Acronym = BlazorRunner.Runner.Helpers.Strings.GetCodeAcronym(value) ?? value ?? "??";
                 int hash = Runner.Helpers.Strings.GetPersistentHash(_Name);
@@ -23,6 +28,18 @@ namespace BlazorRunner.Server.Pages
 
         [Parameter]
         public string Description { get; set; } = "";
+
+        [Parameter]
+        public int Scripts { get; set; } = 0;
+
+        [Parameter]
+        public int Settings { get; set; } = 0;
+
+        [Parameter]
+        public IScriptAssembly ScriptAssembly { get; set; }
+
+        [Parameter]
+        public Action OnViewClick { get; set; }
 
         public string Acronym = "";
 
@@ -51,9 +68,21 @@ namespace BlazorRunner.Server.Pages
             ShowRunAll = false;
         }
 
+        public async Task InvokeAll()
+        {
+            foreach (var item in ScriptAssembly.Scripts)
+            {
+                await TaskDirector.QueueTask(item.ToAction(), item.Id, item.Logger, item.Name);
+            }
+        }
+
+        public void SelectAssembly()
+        {
+            OnViewClick?.Invoke();
+        }
+
         public override Task SetParametersAsync(ParameterView parameters)
         {
-            Console.WriteLine("");
             return base.SetParametersAsync(parameters);
         }
     }
