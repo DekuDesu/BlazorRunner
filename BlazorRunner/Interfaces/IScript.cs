@@ -22,6 +22,8 @@ namespace BlazorRunner.Runner
         IDictionary<string, IScriptSetting[]> SettingGroups { get; set; }
         IDictionary<string, IInvokableMember[]> ScriptGroups { get; set; }
         ILogger Logger { get; set; }
+        int Count { get; }
+        bool IsGenericDLL { get; set; }
 
         object Invoke();
         object Invoke(CancellationToken token);

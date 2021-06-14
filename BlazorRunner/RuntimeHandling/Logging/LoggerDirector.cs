@@ -86,5 +86,22 @@ namespace BlazorRunner.Runner.RuntimeHandling
                 defaultLogger.MaxLogsKeptInMemory = MaxLogsKeptInMemory;
             }
         }
+
+        public static void FlushAll()
+        {
+            var values = LoggerDictionary.Values;
+
+            foreach (var item in values)
+            {
+                if (item is IScriptLogger logger)
+                {
+                    logger.Flush();
+                }
+            }
+
+            LoggerDictionary.Clear();
+
+            GlobalLogger.Flush();
+        }
     }
 }

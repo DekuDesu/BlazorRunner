@@ -8,9 +8,9 @@ namespace BlazorRunner.Runner.Helpers.Formatting
 {
     public static class Html
     {
-        public const string NumberStyle = "color: #a92ea7; font-weight: bold;";
+        public const string NumberStyle = "color: #a92ea7; font-weight: bold";
 
-        public const string MethodNameStyle = "color: black; font-weight: bold;";
+        public const string MethodNameStyle = "color: black; font-weight: bold";
 
         public static string AsCode(this object code)
         {
@@ -40,6 +40,11 @@ namespace BlazorRunner.Runner.Helpers.Formatting
         public static string AsBold(this object str)
         {
             return str.Surround("b");
+        }
+
+        public static string AsUnderline(this object str)
+        {
+            return str.Surround("u");
         }
 
         public static string AsStyle(this object str, object style)

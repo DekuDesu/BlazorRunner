@@ -17,5 +17,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
         object SynchronizationObject { get; }
 
         event Func<Task> OnLog;
+
+        void Flush();
     }
 }

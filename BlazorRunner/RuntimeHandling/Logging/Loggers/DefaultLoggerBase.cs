@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -47,6 +48,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
 
         public event Func<Task> OnLog;
 
+
         public IDisposable BeginScope<TState>(TState state)
         {
             throw new NotImplementedException();
@@ -60,6 +62,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
 
         protected abstract void AddLog(LogItem item);
 
+        [DebuggerHidden]
         protected LogItem[] VolatileCopy()
         {
             LogItem[] logs = null;
@@ -78,6 +81,15 @@ namespace BlazorRunner.Runner.RuntimeHandling
             if (OnLog != null)
             {
                 Task.Run(OnLog);
+            }
+        }
+
+        public virtual void Flush()
+        {
+            OutWriter?.Flush();
+            lock (SynchronizationObject)
+            {
+                _Logs.Clear();
             }
         }
     }

@@ -3,7 +3,7 @@
         <div class="d-inline-flex">
             <div>
                 @Name
-                <StatusBadge DirectedStatus=@Status TraditionTaskStatus="false"></StatusBadge>
+                <StatusBadge DirectedStatus=@Status UseSystemStatusInstead="false"></StatusBadge>
                 <span class="badge bg-secondary">@($"{Time / 1000}s")</span>
                 <div class="text-muted">
                     @Description

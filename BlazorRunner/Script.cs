@@ -31,9 +31,32 @@ namespace BlazorRunner.Runner
 
         public IDictionary<string, IInvokableMember[]> ScriptGroups { get; set; }
 
+        public int Count => GetInvokableMemberCount();
+
         public ILogger Logger { get; set; }
 
         public IDisposable ManagedResource { get; set; }
+
+        public bool IsGenericDLL { get; set; } = false;
+
+        private int GetInvokableMemberCount()
+        {
+            int count = 0;
+            if (Setup != null)
+            {
+                count++;
+            }
+            if (EntryPoint != null)
+            {
+                count++;
+            }
+            if (Cleanup != null)
+            {
+                count++;
+            }
+            count += MiniScripts.Length;
+            return count;
+        }
 
         public Action<CancellationToken> ToAction()
         {

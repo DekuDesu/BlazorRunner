@@ -12,6 +12,10 @@ namespace BlazorRunner.Server.Pages
         [Parameter]
         public IInvokableMember Member { get; set; }
 
+        DirectedTask StoredTask;
+
+        DirectedTaskStatus Status => StoredTask?.Status ?? DirectedTaskStatus.none;
+
         private bool Running = false;
 
         public async Task InvokeMember()
@@ -20,10 +24,9 @@ namespace BlazorRunner.Server.Pages
 
             if (Index.SelectedAssembly.TryGetScript(Member.Parent, out var Parent))
             {
-                for (int i = 0; i < 1; i++)
-                {
-                    await TaskDirector.QueueTask(Member.ToAction(), Member.Id, Parent.Logger, Member.Name);
-                }
+                StoredTask = await TaskDirector.QueueTask(Member.ToAction(), Member.Id, Parent.Logger, Member.Name);
+
+                StoredTask.OnAny += (x, y) => { InvokeAsync(StateHasChanged).Wait(); };
             }
 
             await Task.Delay(250);

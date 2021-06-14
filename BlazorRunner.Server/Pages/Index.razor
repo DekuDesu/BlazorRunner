@@ -1,35 +1,89 @@
 ﻿@page "/"
 @implements IDisposable
 
-@if (SelectedAssembly != null)
-{
-    <div class="w-100 my-2">
-        <button class="btn btn-outline-primary" @onclick="()=>SelectedAssembly=null">Back</button>
+<div class="d-flex w-100 my-2">
+    <div class="d-flex">
+        <div>
+            @if (ShouldShowBackButton())
+            {
+                <button class="btn btn-outline-primary" @onclick="BackButton">Back</button>
+            }
+        </div>
     </div>
-    <div class="flex">
-        @for (int i = 0; i < (ImportedTestAssembly?.Length ?? 0); i++)
-        {
-            <ScriptCard Script=@ImportedTestAssembly[i]></ScriptCard>
-        }
+    <div class="d-flex flex-fill align-items-center justify-content-center" style="text-align: center;">
+        <h1>@Title</h1>
     </div>
-}
-else
-{
-    IScriptAssembly[] assemblies = AssemblyDirector.GetAssemblies();
-    for (int i = 0; i < (assemblies?.Length ?? 0); i++)
+</div>
+
+<div class="d-flex w-100">
+    @if (SelectedScript != null)
     {
-        IScriptAssembly assembly = assemblies[i];
-        <AssemblyCard Name="@assembly.Name" Description="@assembly.Description" Scripts="assembly.Scripts.Length" Settings="assembly.Settings.Length" ScriptAssembly="assembly" OnViewClick="() => { SelectedAssembly = assembly; StateHasChanged(); }"></AssemblyCard>
+        <ScriptCard Script="SelectedScript"></ScriptCard>
     }
-}
+    else if (SelectedAssembly != null)
+    {
+        IScript[] scripts = SelectedAssembly.Scripts;
+        for (int i = 0; i < (scripts?.Length ?? 0); i++)
+        {
+            IScript script = scripts[i];
+            <ScriptSelectCard Name="@script.Name" Description="@script.Description" Scripts="script.Count" Settings="script.Settings.Length" Script="script" OnViewClick="() => { SelectedScript = script; StateHasChanged(); }"></ScriptSelectCard>
+        }
+    }
+    else
+    {
+        IScriptAssembly[] assemblies = AssemblyDirector.GetAssemblies();
+        for (int i = 0; i < (assemblies?.Length ?? 0); i++)
+        {
+            IScriptAssembly assembly = assemblies[i];
+            <AssemblyCard Name="@assembly.Name" Description="@assembly.Description" Scripts="assembly.Scripts.Length" Methods=@assembly.InvokableMembers.Length ScriptAssembly="assembly" OnViewClick="() => { SelectedAssembly = assembly; StateHasChanged(); }"></AssemblyCard>
+        }
+
+    }
+</div>
 
 <DirectorCard></DirectorCard>
 <ConsoleCard></ConsoleCard>
+<ImportCard></ImportCard>
 
 @code{
-    private static IScriptAssembly ImportedTestAssembly = null;
-
     public static IScriptAssembly SelectedAssembly = null;
+
+    public static IScript SelectedScript = null;
+
+    private string Title => GetTitle();
+
+    private string GetTitle()
+    {
+        if (SelectedAssembly is null)
+        {
+            return "Assemblies";
+        }
+        if (SelectedScript is null)
+        {
+            return $"{SelectedAssembly.Name}'s Scripts";
+        }
+        if (SelectedScript != null)
+        {
+            return $"{SelectedScript.Name}";
+        }
+        return "Loading";
+    }
+
+    private bool ShouldShowBackButton()
+    {
+        return SelectedScript != null || SelectedAssembly != null;
+    }
+
+    private void BackButton()
+    {
+        if (SelectedScript != null)
+        {
+            SelectedScript = null;
+            return;
+        }
+
+        SelectedAssembly = null;
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -43,8 +97,6 @@ else
         }
 
         await AssemblyDirector.LoadStartupAssemblies();
-
-        ImportedTestAssembly = AssemblyDirector.LoadedAssemblies.FirstOrDefault().Value;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

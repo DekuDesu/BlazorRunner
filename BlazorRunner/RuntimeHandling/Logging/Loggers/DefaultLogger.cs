@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,14 +10,16 @@ using Newtonsoft.Json;
 
 namespace BlazorRunner.Runner.RuntimeHandling
 {
+
     public class DefaultLogger : DefaultLoggerBase
     {
-
+        [DebuggerHidden]
         public override bool IsEnabled(LogLevel logLevel)
         {
             return logLevel >= MinimumLogLevel && logLevel != LogLevel.None;
         }
 
+        [DebuggerHidden]
         public override void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             if (IsEnabled(logLevel) is false)
@@ -41,6 +44,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
             }
         }
 
+        [DebuggerHidden]
         protected override void AddLog(LogItem item)
         {
             if (LowMemoryMode)
@@ -62,6 +66,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
             }
         }
 
+        [DebuggerHidden]
         public override void Dispose()
         {
             OutWriter?.Dispose();

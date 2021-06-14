@@ -41,6 +41,7 @@ namespace BlazorRunner.Runner
         /// The number of <see cref="IScript"/>s loaded into this <see cref="IScriptAssembly"/>
         /// </summary>
         int Length { get; }
+        bool IsGenericDLL { get; set; }
 
         void AddScript(IScript script);
         IBasicInfo GetFlavorText(Guid Key);

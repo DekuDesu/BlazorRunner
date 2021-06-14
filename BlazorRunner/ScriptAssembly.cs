@@ -35,6 +35,11 @@ namespace BlazorRunner.Runner
 
         public IDictionary<Guid, IScriptSetting> SettingDictionary { get; set; } = new Dictionary<Guid, IScriptSetting>();
 
+        /// <summary>
+        /// <see langword="true"/> when this assembly is not a BlazorRunnerScript but a traditional DLL
+        /// </summary>
+        public bool IsGenericDLL { get; set; } = false;
+
         private IScript[] _Scripts = Array.Empty<IScript>();
 
         private IInvokableMember[] _InvokableMembers = Array.Empty<IInvokableMember>();

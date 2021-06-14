@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BlazorRunner.Server.Pages
 {
-    public partial class AssemblyCard : ComponentBase
+    public partial class ScriptSelectCard : ComponentBase
     {
         [Parameter]
         public string Name
@@ -33,10 +33,10 @@ namespace BlazorRunner.Server.Pages
         public int Scripts { get; set; } = 0;
 
         [Parameter]
-        public int Methods { get; set; } = 0;
+        public int Settings { get; set; } = 0;
 
         [Parameter]
-        public IScriptAssembly ScriptAssembly { get; set; }
+        public IScript Script { get; set; }
 
         [Parameter]
         public Action OnViewClick { get; set; }
@@ -70,10 +70,7 @@ namespace BlazorRunner.Server.Pages
 
         public async Task InvokeAll()
         {
-            foreach (var item in ScriptAssembly.Scripts)
-            {
-                await TaskDirector.QueueTask(item.ToAction(), item.Id, item.Logger, item.Name);
-            }
+            await TaskDirector.QueueTask(Script.ToAction(), Script.Id, Script.Logger, Script.Name);
         }
 
         public void SelectAssembly()

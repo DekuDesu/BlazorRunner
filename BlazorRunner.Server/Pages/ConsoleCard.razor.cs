@@ -71,5 +71,10 @@ namespace BlazorRunner.Server.Pages
                 _ => BootstrapColor.none,
             };
         }
+
+        private void FlushAll()
+        {
+            LoggerDirector.FlushAll();
+        }
     }
 }

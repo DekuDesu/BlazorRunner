@@ -14,6 +14,9 @@ namespace ServerTestAssembly
     public class MyExampleScript : IDisposable
     {
         [Setting(Group = "Small Integers")]
+        public char SeaSlug { get; set; }
+
+        [Setting(Group = "Small Integers")]
         public sbyte Canary { get; set; }
 
         [Setting(Group = "Small Integers")]
@@ -65,21 +68,25 @@ namespace ServerTestAssembly
         ILogger Logger { get; set; }
 
         [Setup]
-        public void Before()
+        public void Before(CancellationToken token)
         {
             Logger.LogInformation("{Method} ran", nameof(Before));
+            Task.Delay(500, token).Wait(token);
         }
 
         [EntryPoint]
-        public void Main()
+        public void Main(CancellationToken token)
         {
             Logger.LogInformation("{Method} ran", nameof(Main));
+            Task.Delay(500, token).Wait(token);
         }
 
         [Cleanup]
-        public void After()
+        public void After(CancellationToken token)
         {
             Logger.LogInformation("{Method} ran", nameof(After));
+            Task.Delay(500, token).Wait(token);
+            throw new TimeZoneNotFoundException();
         }
 
         [MiniScript(Group = "Mini Scripts")]
@@ -109,7 +116,7 @@ namespace ServerTestAssembly
         {
             Console.WriteLine("Started Cat");
             Logger.LogInformation("Started Waiting for {Milliseconds}", Cat);
-            Task.Delay(Cat, token).Wait();
+            Task.Delay(Cat, token).Wait(token);
             Logger.LogInformation("Finished Waiting");
             Console.WriteLine("Ended Cat");
             return Cat;

@@ -16,6 +16,8 @@ namespace BlazorRunner.Runner
 
         public static readonly ConcurrentCallbackDictionary<Guid, DirectedTask> RunningTasks = new();
 
+        public static readonly HashSet<Guid> BackingTasks = new();
+
         public static SemaphoreSlim TaskLimiter { get; private set; } = new(Environment.ProcessorCount, Environment.ProcessorCount);
 
         /// <summary>
@@ -101,14 +103,23 @@ namespace BlazorRunner.Runner
             return newTask;
         }
 
+        public static bool IsRunning(Guid BackingId)
+        {
+            return BackingTasks.Contains(BackingId);
+        }
+
         private static void AddRunningTask(DirectedTask task)
         {
             RunningTasks.Add(task.Id, task);
+
+            // add it to the tasks being ran so badges can update
+            BackingTasks.Add(task.BackingId);
         }
 
         private static void RemoveRunningTask(DirectedTask task)
         {
             RunningTasks?.Remove(task.Id);
+            BackingTasks.Remove(task.BackingId);
         }
 
         public static void ResizeCapacity(int Capacity)

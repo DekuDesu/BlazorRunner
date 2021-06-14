@@ -1,6 +1,10 @@
 ﻿<li class="list-group-item list-group-item-action border border-bottom" style="text-align: center;">
     <div>
-        <span class="h5">@Member.Name</span>
+        <span class="h5 mx-1">@Member.Name</span>
+        @if (Status != DirectedTaskStatus.none)
+        {
+            <StatusBadge DirectedStatus="Status"></StatusBadge>
+        }
     </div>
     <div class="text-muted">@(Member.Description ?? "")</div>
     <button class="btn btn-outline-success w-100 my-2 @(Running ? "disabled" : "")" title="Run Script" @onclick="InvokeMember">

@@ -14,6 +14,7 @@ namespace BlazorRunner.Server
     {
         public static void Main(string[] args)
         {
+            SettingsDirector.Initialize().Wait();
             LoggerDirector.RedirectConsole();
 
             CreateHostBuilder(args).Build().Run();

@@ -7,31 +7,31 @@
         <input type="text" class="form-control" placeholder=@($"{SliderTypeName} ({Min} — {Max})") aria-label=@($"{SliderTypeName} ({Min} — {Max})") aria-describedby="btnGroupAddon" @bind-value=InputText style="min-width: 100px;">
         @if (EnableBitShift)
         {
-            <button class="btn btn-outline-primary text-monospace" @onclick=BitShiftRight>
+            <button class="btn btn-outline-primary text-monospace" @onclick=BitShiftRight title="Bitwise shift right">
                 @($">>")
             </button>
         }
         @if (EnableIncrement)
         {
-            <button class="btn btn-outline-primary text-monospace" @onclick=Decrement>
+            <button class="btn btn-outline-primary text-monospace" @onclick=Decrement title="Decrement by one">
                 -
             </button>
-            <button class="btn btn-outline-primary text-monospace" @onclick=Increment>
+            <button class="btn btn-outline-primary text-monospace" @onclick=Increment title="Increment by one">
                 +
             </button>
         }
         @if (EnableBitShift)
         {
-            <button class="btn btn-outline-primary text-monospace" @onclick=BitShiftLeft>
+            <button class="btn btn-outline-primary text-monospace" @onclick=BitShiftLeft title="Bitwise shift left">
                 @($"<<")
             </button>
         }
         @if (EnableSlider)
         {
-            <input type="range" class="form-range" min=@Min max=@Max step=@StepAmount id="customRange3" @bind-value=SliderValue>
+            <input type="range" class="form-range" min=@Min max=@Max step=@StepAmount id="customRange3" @bind-value=SliderValue title=@SliderValue>
             <div class="d-flex flex-row justify-content-between w-100">
-                <div class="d-flex">@Min</div>
-                <div class="d-flex">@Max</div>
+                <div class="d-flex" title="Maximum number this slider can support">@Min</div>
+                <div class="d-flex" title="Minimum number this slider can support">@Max</div>
             </div>
         }
     </div>

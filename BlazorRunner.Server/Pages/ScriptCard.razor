@@ -1,9 +1,15 @@
-﻿<ul class="list-group">
+﻿<ul class="list-group w-100">
     <li class="list-group-item list-group-item-primary d-flex align-items-center">
         <div class="d-flex">
             <div>
-                <span class="h5">@Script.Name</span>
-                <span class="text-muted">
+                <span class="h5 mx-1">
+                    @Script.Name
+                </span>
+                @if (Status != DirectedTaskStatus.none)
+                {
+                    <StatusBadge DirectedStatus="Status"></StatusBadge>
+                }
+                <span class="text-muted mx-1">
                     @Script.Description
                 </span>
             </div>
@@ -14,36 +20,56 @@
     </li>
     <li class="list-group-item">
         <div class="d-flex justify-content-between">
-            <div class="d-flex flex-column" style="min-width:450px; width: 450px;">
-                @for (int i = 0; i < (Script?.SettingGroups?.Count ?? 0); i++)
-                {
-                    <SettingGroup Name=@Script.SettingGroups.ElementAt(i).Key Settings=@Script.SettingGroups.ElementAt(i).Value></SettingGroup>
-                }
-            </div>
-            <div class="d-flex flex-column mx-2 my-3" style=" min-width: 450px; width: 450px;">
-                <ul class="list-group my-2 mx-2">
-                    <li class="list-group-item list-group-item-secondary" style="text-align:center;">
-                        <span class="h5">@Script.Name</span>
-                    </li>
-                    @if (Script.Setup != null)
+            @if (Script?.SettingGroups?.Count is not null or 0)
+            {
+                <div class="d-flex flex-column" style="min-width:450px; width: 450px;">
+                    @for (int i = 0; i < (Script?.SettingGroups?.Count ?? 0); i++)
                     {
-                        <InvokableMemberControl Member=@Script.Setup></InvokableMemberControl>
+                        <SettingGroup Name=@Script.SettingGroups.ElementAt(i).Key Settings=@Script.SettingGroups.ElementAt(i).Value></SettingGroup>
                     }
-                    @if (Script.EntryPoint != null)
-                    {
-                        <InvokableMemberControl Member=@Script.EntryPoint></InvokableMemberControl>
-                    }
-                    @if (Script.Cleanup != null)
-                    {
-                        <InvokableMemberControl Member=@Script.Cleanup></InvokableMemberControl>
-                    }
+                </div>
+            }
+            @if (Script?.IsGenericDLL is not null and true)
+            {
+                <div class="d-flex flex-column" style="min-width:450px; width: 450px;">
+                    <ul class="list-group my-4">
+                        <li class="list-group-item list-group-item-secondary" style="text-align:center;">
+                            <span class="h5">string[] args</span>
+                            <div class="text-muted">
+                                Seperate words with a space
+                            </div>
+                        </li>
+                        <StringPicker OnChange="UpdateStringArgs"></StringPicker>
+                    </ul>
+                </div>
+            }
+            @if (Script?.IsGenericDLL is not null and not true)
+            {
+                <div class="d-flex flex-column mx-2 my-3" style=" min-width: 450px; width: 450px;">
+                    <ul class="list-group my-2 mx-2">
+                        <li class="list-group-item list-group-item-secondary" style="text-align:center;">
+                            <span class="h5">@Script.Name</span>
+                        </li>
+                        @if (Script.Setup != null)
+                        {
+                            <InvokableMemberControl Member=@Script.Setup></InvokableMemberControl>
+                        }
+                        @if (Script.EntryPoint != null)
+                        {
+                            <InvokableMemberControl Member=@Script.EntryPoint></InvokableMemberControl>
+                        }
+                        @if (Script.Cleanup != null)
+                        {
+                            <InvokableMemberControl Member=@Script.Cleanup></InvokableMemberControl>
+                        }
 
-                </ul>
-                @for (int i = 0; i < (Script?.ScriptGroups?.Count ?? 0); i++)
-                {
-                    <InvokableMemberGroup Name=@Script.ScriptGroups.ElementAt(i).Key Members=@Script.ScriptGroups.ElementAt(i).Value></InvokableMemberGroup>
-                }
-            </div>
+                    </ul>
+                    @for (int i = 0; i < (Script?.ScriptGroups?.Count ?? 0); i++)
+                    {
+                        <InvokableMemberGroup Name=@Script.ScriptGroups.ElementAt(i).Key Members=@Script.ScriptGroups.ElementAt(i).Value></InvokableMemberGroup>
+                    }
+                </div>
+            }
             <div class="d-flex flex-fill my-3" style="min-width: 0; max-height: 1000px;">
                 <ul class="list-group my-2 mx-2 h-100 d-flex w-100" style="overflow-y: scroll; min-width: 0;">
                     <li class="list-group-item list-group-item-secondary" style="text-align:center;">

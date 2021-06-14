@@ -60,11 +60,20 @@ namespace BlazorRunner.Runner
 
         public IScriptAssembly Parse(Assembly assembly)
         {
+            if (assembly is null)
+            {
+                return null;
+            }
+
             IScriptAssembly newScriptAssembly = Factory.CreateScriptAssembly();
 
             if (TryGetAttribute<NameAttribute>(assembly, out var att))
             {
                 newScriptAssembly.Name = att.Name;
+            }
+            else
+            {
+                newScriptAssembly.Name = assembly.FullName.Split(',')[0];
             }
             if (TryGetAttribute(assembly, out DescriptionAttribute desc))
             {
@@ -123,15 +132,33 @@ namespace BlazorRunner.Runner
             // if it is just use it's entry point as a script
             if (scripts?.Count() is null or 0)
             {
-                var newScript = GenerateScriptFromConsoleApplication(assembly);
-
-                if (newScript != null)
-                {
-                    newScriptAssembly.AddScript(newScript);
-                }
+                ParseGenericDLL(newScriptAssembly, assembly);
             }
 
             return newScriptAssembly;
+        }
+
+        private IScriptAssembly ParseGenericDLL(IScriptAssembly scriptAssembly, Assembly assembly)
+        {
+            var newScript = GenerateScriptFromConsoleApplication(assembly);
+
+            if (newScript != null)
+            {
+
+                ILogger injectedLogger = InjectILogger(newScript);
+
+                newScript.Logger = injectedLogger;
+
+                scriptAssembly.AddScript(newScript);
+
+                newScript.Name = scriptAssembly.Name;
+
+                newScript.IsGenericDLL = true;
+
+                scriptAssembly.IsGenericDLL = true;
+            }
+
+            return scriptAssembly;
         }
 
         private void AssignParents(IScript script)
@@ -147,6 +174,7 @@ namespace BlazorRunner.Runner
 
         private ILogger InjectILogger(object instance)
         {
+
             Type instanceType = instance.GetType();
 
             var fields = instanceType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
@@ -207,6 +235,12 @@ namespace BlazorRunner.Runner
 
         private bool TryGetAttribute<T>(Assembly type, out T attribute) where T : System.Attribute
         {
+            if (type == null)
+            {
+                attribute = default;
+                return false;
+            }
+
             attribute = type.GetCustomAttribute<T>();
 
             return attribute != null;

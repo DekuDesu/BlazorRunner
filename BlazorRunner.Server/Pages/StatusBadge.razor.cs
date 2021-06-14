@@ -16,6 +16,6 @@ namespace BlazorRunner.Server.Pages
         public TaskStatus Status { get; set; }
 
         [Parameter]
-        public bool TraditionTaskStatus { get; set; } = false;
+        public bool UseSystemStatusInstead { get; set; } = false;
     }
 }

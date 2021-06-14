@@ -3,7 +3,7 @@
 <div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="consoleScrolling" aria-labelledby="consoleScrollingLabel">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title" id="consoleScrollingLabel">
-            Console <span class="oi oi-reload" title="Refresh" @onclick="Refresh"></span>
+            Console
         </h5>
 
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -23,6 +23,9 @@
                     </li>
                     <li class="nav-item">
                         <button class="nav-link @(SelectedTab == 3 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  3"><span class="badge bg-danger">@Errors.Count()</span></button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link @(SelectedTab == 2 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  4"><span class="oi oi-cog"></span></button>
                     </li>
                 </ul>
             </div>
@@ -61,6 +64,14 @@
                                     <ListGroupItem Content="item.FormattedString" Status=@GetColor(item.logLevel)></ListGroupItem>
                                 }
                             </ul>
+                            break;
+                        case 4:
+                            <ul class="list-group" style="padding-left: 0px; padding-right: 0px;">
+                                <li class="list-group-item">
+                                    <button class="btn btn-outline-warning w-100" title="Clears and flushes global and all script consoles" @onclick=FlushAll>Flush Consoles</button>
+                                </li>
+                            </ul>
+
                             break;
                     }
                 </div>

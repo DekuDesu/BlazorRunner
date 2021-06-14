@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,16 +15,19 @@ namespace BlazorRunner.Runner.RuntimeHandling
     {
         public readonly ILogger[] Loggers = Array.Empty<ILogger>();
 
+        [DebuggerHidden]
         public LoggerSplitter(params ILogger[] loggers)
         {
             Loggers = loggers;
         }
 
+        [DebuggerHidden]
         public IDisposable BeginScope<TState>(TState state)
         {
             throw new NotImplementedException();
         }
 
+        [DebuggerHidden]
         public bool IsEnabled(LogLevel logLevel)
         {
             foreach (var item in Loggers)
@@ -36,6 +40,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
             return true;
         }
 
+        [DebuggerHidden]
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             foreach (var item in Loggers)

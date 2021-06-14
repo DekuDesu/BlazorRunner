@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -58,6 +59,18 @@ namespace BlazorRunner.Runner.RuntimeHandling
 
         public event Func<Task> OnLog;
 
+        public override void Flush()
+        {
+            base.Flush();
+
+            OutWriter?.Flush();
+
+            lock (SynchronizationObject)
+            {
+                _Logs.Clear();
+            }
+        }
+        [DebuggerHidden]
         private LogItem[] VolatileCopy()
         {
             LogItem[] logs = Array.Empty<LogItem>();
@@ -71,7 +84,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
             return logs.Reverse().ToArray();
         }
 
-
+        [DebuggerHidden]
         private void LogValue([AllowNull] object value)
         {
             string s = value?.ToString() ?? "";
@@ -90,7 +103,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
                 OutWriter?.WriteLine(newLog.ToString());
             }
         }
-
+        [DebuggerHidden]
         private void LogEnumerable<T>(IEnumerable<T>? enumerable)
         {
             if (enumerable != null)
@@ -100,7 +113,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
             }
             LogValue(null);
         }
-
+        [DebuggerHidden]
         private void LogFormattedString(string format, params object?[]? parameters)
         {
             if (format != null && parameters != null)
@@ -118,41 +131,41 @@ namespace BlazorRunner.Runner.RuntimeHandling
             }
 
         }
-
+        [DebuggerHidden]
         public override void WriteLine(object? value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void WriteLine() => LogValue(null);
-
+        [DebuggerHidden]
         public override void WriteLine(bool value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void WriteLine(char value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void WriteLine(char[]? buffer) => LogEnumerable(buffer);
-
+        [DebuggerHidden]
         public override void WriteLine(char[] buffer, int index, int count) => LogEnumerable(buffer[index..(index + count)]);
-
+        [DebuggerHidden]
         public override void WriteLine(decimal value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void WriteLine(double value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void WriteLine(float value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void WriteLine(int value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void WriteLine(uint value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void WriteLine(long value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void WriteLine(ulong value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void WriteLine(string? value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void WriteLine(string format, object? arg0) => LogFormattedString(format, arg0!);
-
+        [DebuggerHidden]
         public override void WriteLine(string format, object? arg0, object? arg1) => LogFormattedString(format, arg0!, arg1!);
-
+        [DebuggerHidden]
         public override void WriteLine(string format, object? arg0, object? arg1, object? arg2) => LogFormattedString(format, arg0!, arg1!, arg2!);
-
+        [DebuggerHidden]
         public override void WriteLine(string format, params object?[]? arg)
         {
             if (arg == null)                       // avoid ArgumentNullException from String.Format
@@ -160,13 +173,13 @@ namespace BlazorRunner.Runner.RuntimeHandling
             else
                 LogFormattedString(format, arg);
         }
-
+        [DebuggerHidden]
         public override void Write(string format, object? arg0) => LogFormattedString(format, arg0);
-
+        [DebuggerHidden]
         public override void Write(string format, object? arg0, object? arg1) => LogFormattedString(format, arg0, arg1);
-
+        [DebuggerHidden]
         public override void Write(string format, object? arg0, object? arg1, object? arg2) => LogFormattedString(format, arg0, arg1, arg2);
-
+        [DebuggerHidden]
         public override void Write(string format, params object?[]? arg)
         {
             if (arg == null)                   // avoid ArgumentNullException from String.Format
@@ -174,43 +187,44 @@ namespace BlazorRunner.Runner.RuntimeHandling
             else
                 LogFormattedString(format, arg);
         }
-
+        [DebuggerHidden]
         public override void Write(bool value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void Write(char value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void Write(char[]? buffer) => LogEnumerable(buffer);
-
+        [DebuggerHidden]
         public override void Write(char[] buffer, int index, int count) => LogEnumerable(buffer[index..(index + count)]);
-
+        [DebuggerHidden]
         public override void Write(double value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void Write(decimal value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void Write(float value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void Write(int value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void Write(uint value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void Write(long value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void Write(ulong value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void Write(object? value) => LogValue(value);
-
+        [DebuggerHidden]
         public override void Write(string? value) => LogValue(value);
-
+        [DebuggerHidden]
         public IDisposable BeginScope<TState>(TState state)
         {
             throw new NotImplementedException();
         }
 
+        [DebuggerHidden]
         public bool IsEnabled(LogLevel logLevel)
         {
             return logLevel >= MinimumLogLevel && logLevel != LogLevel.None;
         }
-
+        [DebuggerHidden]
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             if (IsEnabled(logLevel) is false)
@@ -232,7 +246,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
                 Console.WriteLine(newItem);
             }
         }
-
+        [DebuggerHidden]
         private void AddLog(LogItem item)
         {
             if (LowMemoryMode)
@@ -254,6 +268,7 @@ namespace BlazorRunner.Runner.RuntimeHandling
             }
         }
 
+        [DebuggerHidden]
         public new void Dispose()
         {
             OutWriter?.Dispose();

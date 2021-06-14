@@ -63,7 +63,15 @@ namespace BlazorRunner.Server.Pages
 
                 _InputText = value.ToString();
 
-                _SliderValue = value.ToString();
+                if (value is char c)
+                {
+                    _SliderValue = ((int)c).ToString();
+                }
+                else
+                {
+                    _SliderValue = value.ToString();
+                }
+
             }
         }
 

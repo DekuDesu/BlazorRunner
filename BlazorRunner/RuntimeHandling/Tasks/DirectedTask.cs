@@ -72,11 +72,13 @@ namespace BlazorRunner.Runner
 
             try
             {
+                Status = DirectedTaskStatus.Running;
+
                 OnStart?.Invoke(this, result);
                 OnAny?.Invoke(this, result);
                 Logger.LogTrace($"Started Worker {Name} {GetThreadInfo()}");
 
-                Status = DirectedTaskStatus.Running;
+
 
                 Timer.Start();
 

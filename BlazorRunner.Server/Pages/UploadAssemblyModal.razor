@@ -1,0 +1,77 @@
+﻿@inject IJSRuntime Runtime
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="false" aria-modal="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="text-align: center;">
+                <h4 class="modal-title" id="staticBackdropLabel">Upload Assembly</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="" style="text-align: center;">
+                    <h5>Should the assembly saved to disk, or just loaded into memory?</h5>
+                </div>
+                <div class="btn-group w-100 p-1" role="group" aria-label="Basic radio toggle button group">
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio1" @onclick="EnableSave" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="btnradio1">
+                        Permanent
+                        @if (saveToDisk)
+                        {
+                            <span class="oi oi-check"></span>
+                        }
+                    </label>
+
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio2" @onclick="DisableSave" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="btnradio2">
+                        Temporary
+                        @if (!saveToDisk)
+                        {
+                            <span class="oi oi-check"></span>
+                        }
+                    </label>
+                </div>
+                <div class="my-2" style="text-align: center;">
+                    <h5>Should it be loaded right now?</h5>
+                </div>
+                <div class="btn-group-vertical w-100" role="group" aria-label="Basic checkbox toggle button group">
+                    <input type="checkbox" class="btn-check" id="btncheck1" autocomplete="off" checked @bind-value="loadImmediately">
+                    <label class="btn btn-outline-primary" for="btncheck1">
+                        Load Immediately
+                        @if (loadImmediately)
+                        {
+                            <span class="oi oi-check"></span>
+                        }
+                    </label>
+                </div>
+                <div class="my-2" style="text-align: center;">
+                    <h5>Should it automatically load on startup?</h5>
+                </div>
+                <div class="btn-group-vertical w-100" role="group" aria-label="Basic checkbox toggle button group">
+                    <input type="checkbox" class="btn-check" id="btncheck2" autocomplete="off" checked @bind-value="addToStartup">
+                    <label class="btn btn-outline-primary" for="btncheck2">
+                        Load On Startup
+                        @if (addToStartup)
+                        {
+                            <span class="oi oi-check"></span>
+                        }
+                    </label>
+                </div>
+                <div class="alert alert-danger" role="alert">
+                    Executing or uploading assemblies / code is <b><u>dangerous</u></b>
+                    <p>
+                        This tool should be internal facing <b><u>only</u></b>.
+                        Disable assembly uploading if this is an external facing tool.
+                    </p>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="HideModal">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="Upload">Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+}
