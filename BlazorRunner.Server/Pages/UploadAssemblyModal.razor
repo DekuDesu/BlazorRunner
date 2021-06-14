@@ -1,4 +1,5 @@
 ﻿@inject IJSRuntime Runtime
+
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="false" aria-modal="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -16,7 +17,7 @@
                         Permanent
                         @if (saveToDisk)
                         {
-                            <span class="oi oi-check"></span>
+                        <span class="oi oi-check"></span>
                         }
                     </label>
 
@@ -25,7 +26,7 @@
                         Temporary
                         @if (!saveToDisk)
                         {
-                            <span class="oi oi-check"></span>
+                        <span class="oi oi-check"></span>
                         }
                     </label>
                 </div>
@@ -38,7 +39,7 @@
                         Load Immediately
                         @if (loadImmediately)
                         {
-                            <span class="oi oi-check"></span>
+                        <span class="oi oi-check"></span>
                         }
                     </label>
                 </div>
@@ -51,7 +52,7 @@
                         Load On Startup
                         @if (addToStartup)
                         {
-                            <span class="oi oi-check"></span>
+                        <span class="oi oi-check"></span>
                         }
                     </label>
                 </div>

@@ -1,0 +1,18 @@
+﻿<h5>Assemblies Directory</h5>
+<div class="text-muted">
+    Where assemblies are located to automatically import and load them
+</div>
+<StringPicker DefaultValue="@(AssemblyDirector.AssembliesSaveDirectory)" OnChange="SaveAssemblyDirectory"></StringPicker>
+
+<div class="my-1">
+    <h5>Assembly Backup Directory</h5>
+    <div class="text-muted">
+        Where DLLs are stored after they have been imported, used as backups.
+    </div>
+    <StringPicker DefaultValue="@(AssemblyDirector.ImportedSourceAssembliesDirectory)" OnChange="SaveAssemblySourceDirectory"></StringPicker>
+</div>
+
+
+@code {
+
+}

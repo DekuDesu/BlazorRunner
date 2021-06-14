@@ -16,6 +16,8 @@ namespace BlazorRunner.Server.Pages
         //private volatile Timer RefreshTimer = new(500);
         //private readonly object TimerLock = new();
 
+        IBrowserFile file = null;
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
@@ -34,6 +36,7 @@ namespace BlazorRunner.Server.Pages
         private void LoadFiles(InputFileChangeEventArgs e)
         {
             Console.WriteLine("Did something");
+            file = e.File;
         }
 
         async Task Refresh()

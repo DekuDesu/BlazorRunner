@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BlazorRunner.Runner.RuntimeHandling
@@ -20,7 +21,9 @@ namespace BlazorRunner.Runner.RuntimeHandling
         public static IAssemblyBuilder Builder { get; private set; } = Factory.CreateAssemblyBuilder();
 
         public static string AssembliesSaveDirectory { get => _AssembliesSaveDirectory; set => _AssembliesSaveDirectory = value; }
+
         public static string ImportedSourceAssembliesDirectory { get => _ImportedSourceAssembliesDirectory; set => _ImportedSourceAssembliesDirectory = value; }
+
         public static string[] StartingAssemblyPaths { get; set; } = Array.Empty<string>();
 
         public static byte[][] StartingAssemblyBytes { get; set; } = Array.Empty<byte[]>();
@@ -29,7 +32,11 @@ namespace BlazorRunner.Runner.RuntimeHandling
 
         public static bool LoadedStartupAssemblies { get; private set; } = false;
 
-        public static LocalDictionary<Guid, bool> StartupAssemblySettings { get; private set; } = new("StartupAssemblies.json");
+        public static LocalDictionary<Guid, bool> StartupAssemblySettings { get; private set; } = new("AssemblyStartup.json");
+
+        public static LocalDictionary<Guid, string> AssemblyInfoDict { get; private set; } = new("AssemblyInfo.json");
+
+        public static HashSet<Guid> ImportedAssemblies { get; private set; } = new();
 
         public static IScriptAssembly[] GetAssemblies()
         {
@@ -115,9 +122,24 @@ namespace BlazorRunner.Runner.RuntimeHandling
 
             if (importer is IAsyncEnumerable<Assembly> enumerableImporter)
             {
+                int num = -1;
                 await foreach (var assembly in enumerableImporter)
                 {
                     Load(assembly);
+
+                    var pathIndex = Interlocked.Increment(ref num);
+
+                    if (assembly != null)
+                    {
+                        if (TryParsePath(Paths[pathIndex], out var id))
+                        {
+                            if (AssemblyInfoDict.ContainsKey(id) is false)
+                            {
+                                await AssemblyInfoDict.SetAsync(id, assembly.FullName);
+                            }
+                            ImportedAssemblies.Add(id);
+                        }
+                    }
                 }
             }
             else
@@ -125,6 +147,15 @@ namespace BlazorRunner.Runner.RuntimeHandling
                 Assembly assembly = await importer.LoadAsync();
 
                 Load(assembly);
+
+                if (TryParsePath(Paths[0], out var id))
+                {
+                    if (AssemblyInfoDict.ContainsKey(id) is false)
+                    {
+                        await AssemblyInfoDict.SetAsync(id, assembly.FullName);
+                    }
+                    ImportedAssemblies.Add(id);
+                }
             }
         }
 
@@ -151,9 +182,12 @@ namespace BlazorRunner.Runner.RuntimeHandling
         {
             // load the dict so we can check which assemblies to load
             await StartupAssemblySettings.LoadAsync();
+            await AssemblyInfoDict.LoadAsync();
 
             // load where we should look
             VerifyDirectory(nameof(AssembliesSaveDirectory), ref _AssembliesSaveDirectory);
+
+            VerifyDirectory(nameof(ImportedSourceAssembliesDirectory), ref _ImportedSourceAssembliesDirectory);
 
             // get all the files
             var files = Directory.GetFiles(AssembliesSaveDirectory);
@@ -165,21 +199,20 @@ namespace BlazorRunner.Runner.RuntimeHandling
             {
                 var fileName = Path.GetFileNameWithoutExtension(path);
 
-                if (fileName != null)
+                if (TryParsePath(path, out var id))
                 {
-                    if (Guid.TryParse(fileName, out var id))
+                    if (StartupAssemblySettings.ContainsKey(id))
                     {
-                        if (StartupAssemblySettings.ContainsKey(id))
+                        if (StartupAssemblySettings.Get(id))
                         {
-                            if (StartupAssemblySettings.Get(id))
-                            {
-                                pathsToLoad.Add(path);
-                            }
-                            continue;
+                            pathsToLoad.Add(path);
                         }
                         continue;
                     }
+                }
 
+                if (fileName != null)
+                {
                     pathsToLoad.Add(path);
 
                     var newId = DuplicateFile(path);
@@ -189,6 +222,18 @@ namespace BlazorRunner.Runner.RuntimeHandling
             }
 
             await LoadAsync(pathsToLoad.ToArray());
+        }
+
+        private static bool TryParsePath(string path, out Guid Id)
+        {
+            var fileName = Path.GetFileNameWithoutExtension(path);
+
+            if (fileName == null)
+            {
+                Id = default;
+                return false;
+            }
+            return Guid.TryParse(fileName, out Id);
         }
 
         private static Guid DuplicateFile(string source)
@@ -202,8 +247,6 @@ namespace BlazorRunner.Runner.RuntimeHandling
             string path = Path.Join(Path.GetDirectoryName(source), $"{newName}{Path.GetExtension(source)}");
 
             File.Copy(source, path);
-
-            VerifyDirectory(nameof(ImportedSourceAssembliesDirectory), ref _ImportedSourceAssembliesDirectory);
 
             File.Move(source, Path.Combine(ImportedSourceAssembliesDirectory, Path.GetFileName(source)));
 
@@ -234,20 +277,10 @@ namespace BlazorRunner.Runner.RuntimeHandling
             }
         }
 
-        private static T LoadOrSave<T>(string Key, ref T Value)
+        public static void ReloadSettings()
         {
-            var loadedValue = SettingsDirector.Get<T>(Key);
-
-            if (loadedValue == null)
-            {
-                SettingsDirector.Set(Key, Value);
-            }
-            else
-            {
-                Value = loadedValue;
-            }
-
-            return Value;
+            AssembliesSaveDirectory = SettingsDirector.Get<string>(nameof(AssembliesSaveDirectory));
+            ImportedSourceAssembliesDirectory = SettingsDirector.Get<string>(nameof(ImportedSourceAssembliesDirectory));
         }
 
         public static void Load(params Assembly[] assemblies)
@@ -278,8 +311,20 @@ namespace BlazorRunner.Runner.RuntimeHandling
 
             foreach (var item in items)
             {
-                item?.Dispose();
+                try
+                {
+                    item?.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(LogExceptions(e));
+                }
             }
+        }
+        private static string LogExceptions(Exception e)
+        {
+            string inner = e.InnerException != null ? LogExceptions(e.InnerException) : "";
+            return $"<pre><div>{e.Message}</div><div>    {e.StackTrace}</div></pre>{inner}";
         }
     }
 }

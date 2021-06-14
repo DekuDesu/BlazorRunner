@@ -22,13 +22,10 @@
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <button class="nav-link @(SelectedTab == 0 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  0">Loaded <span class="badge bg-success">@TaskDirector.Running</span></button>
+                        <button class="nav-link @(SelectedTab == 0 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  0">Startup <span class="badge bg-success">@AssemblyDirector.ImportedAssemblies.Count</span></button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link @(SelectedTab == 1 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  1">Unloaded <span class="badge bg-primary">@TaskDirector.Queued</span></button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link @(SelectedTab == 2 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  2"><span class="oi oi-cog"></span></button>
+                        <button class="nav-link @(SelectedTab == 2 ? "active" : "")" aria-current="true" @onclick="()=>SelectedTab=  1"><span class="oi oi-cog"></span></button>
                     </li>
                 </ul>
             </div>
@@ -36,17 +33,20 @@
                 @switch (SelectedTab)
                 {
                     case 0:
+                        <AssemblyStartupSettingsCard></AssemblyStartupSettingsCard>
                         break;
                     case 1:
-                        break;
-                    case 2:
+                        <ImportSettingsCard></ImportSettingsCard>
                         break;
                 }
             </div>
         </div>
     </div>
 </div>
-<UploadAssemblyModal></UploadAssemblyModal>
+@if (file != null)
+{
+    <UploadAssemblyModal FileInfo="@file"></UploadAssemblyModal>
+}
 
 
 @code {
