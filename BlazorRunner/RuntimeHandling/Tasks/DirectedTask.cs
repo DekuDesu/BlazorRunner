@@ -120,7 +120,7 @@ namespace BlazorRunner.Runner
                 OnAny?.Invoke(this, result);
 
                 Logger.LogError($"Worker {Name} encountered an error {GetTime()} {GetThreadInfo()}");
-                LogExceptions(e.InnerException);
+                Logger.LogError(LogExceptions(e.InnerException));
             }
             finally
             {
@@ -216,13 +216,10 @@ namespace BlazorRunner.Runner
             return false;
         }
 
-        private void LogExceptions(Exception e)
+        private string LogExceptions(Exception e)
         {
-            Logger.LogError($"<pre><div>{e.Message}</div><div>    {e.StackTrace}</div></pre>");
-            if (e.InnerException != null)
-            {
-                LogExceptions(e.InnerException);
-            }
+            string inner = e.InnerException != null ? LogExceptions(e.InnerException) : "";
+            return $"<pre><div>{e.Message}</div><div>    {e.StackTrace}</div></pre>{inner}";
         }
 
         private string GetTime()

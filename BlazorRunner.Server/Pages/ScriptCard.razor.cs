@@ -15,6 +15,7 @@ namespace BlazorRunner.Server.Pages
         private async Task QueueEntryPoint()
         {
             await TaskDirector.QueueTask(Script.ToAction(), Script.EntryPoint.Id, Script.Logger, Script.Name);
+            await Task.Delay(250);
         }
     }
 }
